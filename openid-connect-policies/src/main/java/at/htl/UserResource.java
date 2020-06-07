@@ -11,21 +11,23 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 @Path("api")
+@Produces(MediaType.APPLICATION_JSON)
 public class UserResource {
 
     @Inject
     SecurityIdentity identity;
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/users")
     @NoCache
-    public SecurityIdentity getUserInfo(){
+    public SecurityIdentity getUserInfo() {
         return identity;
     }
 
     @GET
     @Path("/admin")
-    public String getAdmin() {
+    @NoCache
+    public String getAdminSecret() {
         return "I am admin";
     }
 }
