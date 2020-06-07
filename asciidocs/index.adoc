@@ -1,9 +1,10 @@
-= My Project
-firstname lastname
-1.1.0, yyyy-mm-dd: Some notes
+= Quarkus - Authorization with Keycloak (Policies)
+Thomas Stütz
+1.0.0, 2020-06-07: Lecture Notes for Courses at HTL Leonding
 ifndef::imagesdir[:imagesdir: images]
 //:toc-placement!:  // prevents the generation of the doc at this position, so it can be printed afterwards
-:sourcedir: ../src/main/java
+ifndef::sourcedir-code[:sourcedir-code: ../openid-connect-policies/src/main/java/at/htl]
+ifndef::sourcedir-test[:sourcedir-test: ../openid-connect-policies/src/test/java/at/htl]
 :icons: font
 :sectnums:    // Nummerierung der Überschriften / section numbering
 :toc: left
@@ -12,68 +13,53 @@ ifndef::imagesdir[:imagesdir: images]
 ifdef::backend-html5[]
 
 // https://fontawesome.com/v4.7.0/icons/
-icon:file-text-o[link=https://raw.githubusercontent.com/htl-leonding-college/asciidoctor-docker-template/master/asciidocs/{docname}.adoc] ‏ ‏ ‎
-icon:github-square[link=https://github.com/htl-leonding-college/asciidoctor-docker-template] ‏ ‏ ‎
+icon:file-text-o[link=https://raw.githubusercontent.com/htl-leonding-college/quarkus-security-lecture-notes/master/asciidocs/{docname}.adoc] ‏ ‏ ‎
+icon:github-square[link=https://github.com/htl-leonding-college/quarkus-security-lecture-notes] ‏ ‏ ‎
 icon:home[link=https://htl-leonding.github.io/]
 endif::backend-html5[]
 
-// print the toc here (not at the default position)
-//toc::[]
+== Create your Quarkus Project
 
-== Pflichtenheft "Was mache ich"
-
-
-=== Ausgangssituation
-
-Die HTL Leonding ist eine HTL im oö. Zentralraum mit ca. 1000 Schülern und den Fachabteilungen Medientechnik, Informatik, ....
-
-=== Istzustand
 ----
-Beschreibung der speziellen Situation zB in der Abteilung
-----
-=== Problemstellung
-=== Aufgabenstellung
-==== Funktionale Anforderungen
-
-[plantuml,wireframe,png]
-----
-@startsalt
-{
-Name         | "                 "
-Modifiers:   | { (X) public | () default | () private | () protected
-	            [] abstract | [] final   | [] static }
-Superclass:  | { "java.lang.Object " | [Browse...] }
-}
-@endsalt
-----
-==== Nichtfunktionale Anforderungen (NFA)
-=== Ziele
-=== Mengengerüst
-=== Rahmenbedingungen
-zB Vorgaben vom Auftraggeber
-
-== Entwurf "Wie mache ich es"
-=== Systemarchitektur
-=== ...
-
-== Projekthandbuch "Organisatorische Rahmenbedingungen"
-
-=== GANTT-Diagramm
-
-mit User-Stories (definiert in YouTrack)
-
-[plantuml,gantt-protoype,png]
-----
-@startuml
-[Test prototype] lasts 10 days
-[Prototype completed] happens at [Test prototype]'s end
-[Setup assembly line] lasts 12 days
-[Setup assembly line] starts at [Test prototype]'s end
-[Test prototype 2] lasts 3 days
-[Test prototype 2] starts at [Prototype completed]'s end
-@enduml
+mvn io.quarkus:quarkus-maven-plugin:1.5.0.Final:create \
+  -DprojectGroupId=at.htl \
+  -DprojectArtifactId=quarkus-openid-connect \
+  -Dextensions="oidc, resteasy-jsonb"
 ----
 
-* link:minutes-of-meeting.html[Protokollvorlage]
-* link:demo.html[Demo]
+== Add the Endpoint (Resource)
+
+[source,java]
+----
+include::{sourcedir-code}/UserResource.java[]
+----
+
+== application.properties
+[source,properties,options="nowrap"]
+----
+include::{sourcedir-code}/../../../resources/application.properties[]
+----
+
+== Make the Initial Commit
+
+[source,console]
+----
+cd openid-connect-policies
+
+git init
+git add .
+git commit -m "inital commit"
+git remote add origin https://github.com/<your github-account>/openid-connect-policies.git
+git push -u origin master
+
+idea .
+----
+
+== Add a extension
+
+[source,console]
+----
+./mvnw quarkus:add-extension -Dextensions="keycloak-authorization"
+----
+
 

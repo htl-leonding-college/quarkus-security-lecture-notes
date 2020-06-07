@@ -11,7 +11,7 @@ cp -r -p -v asciidocs/.nojekyll $BUILD_DIR
 cp -r -p -v asciidocs/index.adoc $BUILD_DIR
 cp -r -p -v asciidocs/*.adoc $BUILD_DIR
 #uncomment it when you want to copy the source code into the gh-pages (for including source code into your document)
-#cp -r -p -v src $BUILD_DIR
+cp -r -p -v openid-connect-policies/src $BUILD_DIR
 
 docker run --rm \
            -v ${PWD}/$BUILD_DIR:/documents \
@@ -29,7 +29,8 @@ docker run --rm \
            -a sectanchors=true \
            -a sectnums=true \
            -a favicon=themes/favicon.png \
-           -a sourcedir=src/main/java \
+           -a sourcedir-code=src/main/java/at/htl \
+           -a sourcedir-test=src/test/java/at/htl \
            -b html5 \
            '*.adoc' && rm -rf ./.asciidoctor && echo Creating html-docs in Docker finished ..."
 
