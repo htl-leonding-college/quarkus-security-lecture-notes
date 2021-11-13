@@ -6,7 +6,7 @@ cp -r -p -v asciidocs $BUILD_DIR
 #cp -r -p -v src $BUILD_DIR
 docker run --rm \
            -v ${PWD}/$BUILD_DIR:/documents \
-           asciidoctor/docker-asciidoctor asciidoctor-pdf \
+           asciidoctor/docker-asciidoctor:1.3.3 asciidoctor-pdf \
            -r asciidoctor-diagram \
            -a icons=font \
            -a icons-set=fas \
@@ -22,5 +22,5 @@ docker run --rm \
            '*.adoc'
 
 # https://asciidoctor.org/docs/asciidoctor-pdf/
-
-AsciiDoctor - Dokumentation schreibenkann Spass machen!
+# https://share.stoeps.de/Froscon14-DocumentationWithAnyEditor.html
+# https://docplayer.org/9293416-Asciidoctor-dokumentation-schreiben-kann-spass-machen.html
