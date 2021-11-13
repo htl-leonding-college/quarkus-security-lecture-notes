@@ -9,3 +9,4 @@ gh-pages
 *.jar
 .idea/
 *.iml
+.env
