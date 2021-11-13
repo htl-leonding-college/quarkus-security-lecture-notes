@@ -1,6 +1,6 @@
 = Quarkus - Authorization with Keycloak (Policies)
 Thomas Stütz
-1.0.0, 2020-06-07: Lecture Notes for Courses at HTL Leonding
+1.0.0, 2021-04-10: Lecture Notes for Courses at HTL Leonding
 ifndef::imagesdir[:imagesdir: images]
 //:toc-placement!:  // prevents the generation of the doc at this position, so it can be printed afterwards
 ifndef::sourcedir-code[:sourcedir-code: ../openid-connect-policies/src/main/java/at/htl]
@@ -8,65 +8,16 @@ ifndef::sourcedir-test[:sourcedir-test: ../openid-connect-policies/src/test/java
 :icons: font
 :sectnums:    // Nummerierung der Überschriften / section numbering
 :toc: left
-:toclevels: 5
 :experimental: // for displaying the keyboard-icons
-:linkattrs:   // so window="_blank" will be executed
 
 //Need this blank line after ifdef, don't know why...
 ifdef::backend-html5[]
 
+// https://fontawesome.com/v4.7.0/icons/
 icon:file-text-o[link=https://raw.githubusercontent.com/htl-leonding-college/quarkus-security-lecture-notes/master/asciidocs/{docname}.adoc] ‏ ‏ ‎
 icon:github-square[link=https://github.com/htl-leonding-college/quarkus-security-lecture-notes] ‏ ‏ ‎
-icon:home[link=https://htl-leonding-college.github.io/quarkus-security-lecture-notes/]
+icon:home[link=https://htl-leonding.github.io/]
 endif::backend-html5[]
-
-
-
-
-== Keycloak simple
-
-== Keycloak w/ Angular
-
-//include::keycloak-angular.adoc[]
-<<keycloak-angular.adoc#, open doc>>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-////
-
 
 == Authorization with Policies
 
@@ -75,7 +26,7 @@ see also https://quarkus.io/guides/security-keycloak-authorization[Quarkus - Usi
 == Create your Quarkus Project
 
 ----
-mvn io.quarkus:quarkus-maven-plugin:1.5.0.Final:create \
+mvn io.quarkus:quarkus-maven-plugin:2.4.2.Final:create \
   -DprojectGroupId=at.htl \
   -DprojectArtifactId=quarkus-openid-connect \
   -Dextensions="oidc, resteasy-jsonb"
@@ -407,5 +358,5 @@ I am admin
 ----
 
 
-////
+
 

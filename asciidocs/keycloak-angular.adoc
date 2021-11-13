@@ -1,34 +1,232 @@
-= Quarkus - Authorization with Keycloak (Policies)
-Thomas Stütz
-1.0.0, 2020-06-07: Lecture Notes for Courses at HTL Leonding
-ifndef::imagesdir[:imagesdir: images]
-//:toc-placement!:  // prevents the generation of the doc at this position, so it can be printed afterwards
-ifndef::sourcedir-code[:sourcedir-code: ../openid-connect-policies/src/main/java/at/htl]
-ifndef::sourcedir-test[:sourcedir-test: ../openid-connect-policies/src/test/java/at/htl]
-:icons: font
-:sectnums:    // Nummerierung der Überschriften / section numbering
-:toc: left
-:toclevels: 5
-:experimental: // for displaying the keyboard-icons
-:linkattrs:   // so window="_blank" will be executed
-
-//Need this blank line after ifdef, don't know why...
-ifdef::backend-html5[]
-
+// https://fontawesome.com/v4.7.0/icons/
 icon:file-text-o[link=https://raw.githubusercontent.com/htl-leonding-college/quarkus-security-lecture-notes/master/asciidocs/{docname}.adoc] ‏ ‏ ‎
 icon:github-square[link=https://github.com/htl-leonding-college/quarkus-security-lecture-notes] ‏ ‏ ‎
-icon:home[link=https://htl-leonding-college.github.io/quarkus-security-lecture-notes/]
-endif::backend-html5[]
+icon:home[link=https://htl-leonding.github.io/]
+
+
+
+----
+Credits for Halil Bahar for his awesome quarkus-angular-keycloak lecture
+----
+
+== Concept
+
+.source: https://medium.com/swlh/angular-quarkus-keycloak-security-ac95d4547d1[Catalin Patrut - Angular, Quarkus, Keycloak, Security, window="_blank"]
+image:0-security-concept.png[]
+
+== Create Quarkus Project
+
+[source,shell]
+----
+mkdir keycloak-demo
+cd keycloak-demo
+----
+
+.Create a simple maven project: menu:File[New > Project... > Maven]
+[%collapsible]
+//[%collapsible%open]
+====
+image:a-create-quarkus-project-01.png[]
+
+image:a-create-quarkus-project-02.png[]
+
+====
+
+.Create a new module: menu:File[New > Module... > Quarkus]
+[%collapsible]
+//[%collapsible%open]
+====
+image:a-create-quarkus-project-03.png[]
+
+image:a-create-quarkus-project-04.png[]
+
+image:a-create-quarkus-project-05.png[]
+
+====
+
+.Make changes in the endpoint
+[source,java]
+----
+@Path("/hello")
+public class ExampleResource {
+
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    public String hello() {
+        return "Hello from Server";
+    }
+}
+----
+
+.Start the Quarkus app - Open a terminal in IntelliJ
+[source,shell]
+----
+cd quarkus-backend
+./mvnw clean compile quarkus:dev
+----
+
+== Access to the Unprotected Endpoint
+
+=== Create a http-client in IntelliJ
+
+* Right Click on project root `quarkus-angular-keycloak-demo`
+* menu:New[HTTP Request]
+* Name: `http-request/request.http`
+* Write http-request
+
+.request.http
+[source,http]
+----
+GET http://localhost:8080/hello
+
+###
+----
+
+=== Disable openid connect (oidc)
+
+.src/main/resources/application.properties
+[source,properties]
+----
+# OIDC Configuration
+quarkus.oidc.enabled=false
+----
+
+[IMPORTANT]
+====
+When oidc is not disabled, the following error will occur:
+
+----
+io.quarkus.oidc.OIDCException: Tenant configuration has not been resolved
+----
+====
+
+== Use the http-client
+
+image:b-create-http-client.png[]
 
 
 
 
-== Keycloak simple
+== Configure Keycloak
 
-== Keycloak w/ Angular
+=== Run Keycloak-Docker-Container
 
-//include::keycloak-angular.adoc[]
-<<keycloak-angular.adoc#, open doc>>
+[source,shell script]
+----
+docker run --rm -p 8180:8080 -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=admin jboss/keycloak:15.0.2
+----
+
+=== Access Administration Console
+
+* http://localhost:8180
+* Administration Console
+* admin / admin
+
+image:c-keycloak-add-realm.png[]
+
+=== Add Realm
+
+* Add realm
+** Name: *htl*
+** kbd:[Create]
+
+=== Add Client
+
+
+* Clients
+** kbd:[Create]
+*** ClientID: *demo*
+*** Client Protocol: *openid-connect*
+*** Advanced Settings
+**** Access Token Lifespan: *???*
+**** Client Session Idle: *???*
+*** Click kbd:[Save]
+
+* Users
+** kbd:[Add user]
+*** Details
+**** Username: admin
+**** Email Verified: ON
+**** kbd:[Save]
+
+.Add user
+[%collapsible]
+====
+image:c-keycloak-add-user.png[]
+====
+*** Credentials
+**** Password: passme
+**** Password Confirmation: passme
+**** Temporary: OFF
+**** kbd:[Set Password]
+**** Are you sure you want to set a password for the user?: kbd:[Set password]
+
+////
+Now make a User "user" like "admin".
+////
+
+* Clients -> *demo*
+** Settings
+*** Access Type: bearer-only
+*** Service Accounts Enabled: ON
+*** Authorization Enabled: OFF
+*** Valid Redirect URIs: http://localhost:8080/
+*** kbd:[Save]
+** Credentials
+*** Copy Secret into clipboard
+*** Paste the secret in application.properties in the line "quarkus.oidc.credentials.secret"
+
+[TIP]
+====
+Bearer tokens allow requests to authenticate using an access key, such as a JSON Web Token (JWT). The token is a text string, included in the request header.
+
+Bearer authentication (also called token authentication) is an HTTP authentication scheme that involves security tokens called bearer tokens. The name “Bearer authentication” can be understood as “give access to the bearer of this token.” The bearer token is a cryptic string, usually generated by the server in response to a login request. The client must send this token in the Authorization header when making requests to protected resources
+====
+
+== Create Angular App
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+== Sources
+
+* https://quarkus.io/guides/security-keycloak-authorization
+* https://manfredsteyer.github.io/angular-oauth2-oidc/docs/
+* https://youtu.be/5eR2uMMnJN4[YouTube: Microprofile Rest Client with TLS Authentication | Quarkus Tutorial | QUARKUS | TLS, window="_blank"]
+* https://medium.com/swlh/angular-quarkus-keycloak-security-ac95d4547d1[Catalin Patrut - Angular, Quarkus, Keycloak, Security, window="_blank"]
+* https://dev.to/anthonyikeda/securing-angular-and-quarkus-with-keycloak-pt-1-4g33[Anthony Ikeda - Securing Angular and Quarkus with Keycloak Pt 1, window="_blank"]
+* https://www.keycloak.org/docs/latest/server_admin/#oidc-clients
+* https://dev.to/anthonyikeda/securing-angular-and-quarkus-with-keycloak-pt-1-4g33
+* https://dev.to/anthonyikeda/securing-angular-and-quarkus-with-keycloak-pt-2-43bh
+* https://github.com/ErikMayrhofer/angular-quarkus-keycloak-example
+** mit auth interceptor
+
+
+
+
+
+
 
 
 
