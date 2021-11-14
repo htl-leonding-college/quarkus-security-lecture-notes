@@ -1,6 +1,6 @@
 = Quarkus - Authorization with Keycloak (Policies)
 Thomas Stütz
-1.0.0, 2020-06-07: Lecture Notes for Courses at HTL Leonding
+1.0.0, 2021-11-14: Lecture Notes for Courses at HTL Leonding
 ifndef::imagesdir[:imagesdir: images]
 //:toc-placement!:  // prevents the generation of the doc at this position, so it can be printed afterwards
 ifndef::sourcedir-code[:sourcedir-code: ../openid-connect-policies/src/main/java/at/htl]
@@ -23,7 +23,9 @@ endif::backend-html5[]
 
 
 
-== Keycloak simple
+== Keycloak Role-Based Access Control (RBAC)
+
+<<keycloak-rbac.adoc#, open doc>>
 
 == Keycloak w/ Angular
 
