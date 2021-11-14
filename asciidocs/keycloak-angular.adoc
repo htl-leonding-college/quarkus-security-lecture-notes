@@ -1,3 +1,7 @@
+ifndef::sourcedir-code[:sourcedir-code: ../labs/openid-connect-policies/src/main/java/at/htl]
+ifndef::sourcedir-test[:sourcedir-test: ../labs/openid-connect-policies/src/test/java/at/htl]
+
+
 // https://fontawesome.com/v4.7.0/icons/
 icon:file-text-o[link=https://raw.githubusercontent.com/htl-leonding-college/quarkus-security-lecture-notes/master/asciidocs/{docname}.adoc] ‏ ‏ ‎
 icon:github-square[link=https://github.com/htl-leonding-college/quarkus-security-lecture-notes] ‏ ‏ ‎

@@ -1,10 +1,10 @@
 = Quarkus - Authorization with Keycloak (Policies)
 Thomas Stütz
-1.0.0, 2021-11-14: Lecture Notes for Courses at HTL Leonding
+2.0.0, 2021-11-14: Lecture Notes for Courses at HTL Leonding
 ifndef::imagesdir[:imagesdir: images]
 //:toc-placement!:  // prevents the generation of the doc at this position, so it can be printed afterwards
-ifndef::sourcedir-code[:sourcedir-code: ../openid-connect-policies/src/main/java/at/htl]
-ifndef::sourcedir-test[:sourcedir-test: ../openid-connect-policies/src/test/java/at/htl]
+ifndef::sourcedir-code[:sourcedir-code: ../labs/openid-connect-policies/src/main/java/at/htl]
+ifndef::sourcedir-test[:sourcedir-test: ../labs/openid-connect-policies/src/test/java/at/htl]
 :icons: font
 :sectnums:    // Nummerierung der Überschriften / section numbering
 :toc: left

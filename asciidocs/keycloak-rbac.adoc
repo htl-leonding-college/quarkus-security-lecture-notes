@@ -1,3 +1,6 @@
+ifndef::sourcedir-code[:sourcedir-code: ../labs/openid-connect-policies/src/main/java/at/htl]
+ifndef::sourcedir-test[:sourcedir-test: ../labs/openid-connect-policies/src/test/java/at/htl]
+
 icon:file-text-o[link=https://raw.githubusercontent.com/htl-leonding-college/quarkus-security-lecture-notes/master/asciidocs/{docname}.adoc] ‏ ‏ ‎
 icon:github-square[link=https://github.com/htl-leonding-college/quarkus-security-lecture-notes] ‏ ‏ ‎
 icon:home[link=https://htl-leonding.github.io/]
@@ -29,6 +32,21 @@ include::{sourcedir-code}/UserResource.java[]
 [source,properties,options="nowrap"]
 ----
 include::{sourcedir-code}/../../../resources/application.properties[]
+----
+
+=== Problems, when using Jackson
+
+* In this example, we serialize not a self-built entity class. We serialize a given interface `SecurityIdentity`.
+** An error occurs because of lacking getter and setter.
+** So we have to loosen the policy for serializing this interface.
+
+[source,properties]
+----
+# these properties are necessary because jackson throws an 'InvalidDefinitionException: No serializer found for class'
+# https://quarkus.io/guides/rest-json#json
+# würde man json-b verwenden, wäre das nicht notwendig
+quarkus.jackson.fail-on-unknown-properties=false
+quarkus.jackson.fail-on-empty-beans=false
 ----
 
 == Make the Initial Commit
