@@ -3,12 +3,12 @@ Thomas Stütz
 2.0.0, 2023-04-07: Lecture Notes for Courses at HTL Leonding
 :toc:
 :toclevels: 4
-ifndef::imagesdir[:imagesdir: images]
-ifndef::sourcedir-code[:sourcedir-code: ../labs/openid-connect-policies/src/main/java/at/htl]
-ifndef::sourcedir-test[:sourcedir-test: ../labs/openid-connect-policies/src/test/java/at/htl]
 :icons: font
 :sectnums:    // Nummerierung der Überschriften / section numbering
 :experimental: // for displaying the keyboard-icons
+ifndef::imagesdir[:imagesdir: images]
+ifndef::sourcedir-code[:sourcedir-code: ../labs/openid-connect-policies/src/main/java/at/htl]
+ifndef::sourcedir-test[:sourcedir-test: ../labs/openid-connect-policies/src/test/java/at/htl]
 :linkattrs:   // so window="_blank" will be executed
 //Need this blank line after ifdef, don't know why...
 ifdef::backend-html5[]
