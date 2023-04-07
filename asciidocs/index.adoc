@@ -121,11 +121,24 @@ IMPORTANT: Quarkus kennt den Begriff der https://quarkus.io/guides/security-buil
 ** https://quarkus.io/guides/security-oauth2[Using OAuth2 RBAC - Tutorial^]
 
 
+=== Authentifizierungsmechanismen
+
 ==== Role-based access control (RBAC)
 
-* Provider
-** JDBC
-** JPA
+* durch Annotationen in den Endpoints wird der Zugriff durch Rollen geregelt.
+
+* Identity-Provider
+*** JDBC-IdentityProvider
+*** JPA-IdentityProvider
+*** User Properties-IdentityProvider
+*** externer Identity Provider zB Keycloak
+
+==== Centralized Authorization
+
+* Der Provider (zB Keycloak) enthält alle Infos welche Reolle auf welche Endpoints zugreifen darf.
+
+== Following Section is "Work in Progress"
+
 
 
 
@@ -152,16 +165,6 @@ IMPORTANT: Quarkus kennt den Begriff der https://quarkus.io/guides/security-buil
 *** RBAC: im Code werden durch Anntotaionen die Authorisierung angegeben (@RolesAllowed...)
 *** Policies: Im Code gibt es keine Autorisierungs-Annotationen. Sämtliche Routes werden für die einzelnen Rollen im Keycloak definiert
 
-
-=== Authentifizierungsmechanismen
-
-==== RBAC - Role Based Access Control
-
-==== Centralized Authorization
-
-
-
-== Following Section is "Work in Progress"
 
 
 == Keycloak Role-Based Access Control (RBAC)
