@@ -2,9 +2,10 @@
 Thomas Stütz
 2.0.0, 2023-04-07: Lecture Notes for Courses at HTL Leonding
 :toc:
-:toclevels: 4
+:toclevels: 5
 :icons: font
 :sectnums:    // Nummerierung der Überschriften / section numbering
+:sectnumlevels: 5
 :experimental: // for displaying the keyboard-icons
 ifndef::imagesdir[:imagesdir: images]
 ifndef::sourcedir-code[:sourcedir-code: ../labs/openid-connect-policies/src/main/java/at/htl]
