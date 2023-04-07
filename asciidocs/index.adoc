@@ -2,8 +2,8 @@
 Thomas Stütz
 2.0.0, 2023-04-07: Lecture Notes for Courses at HTL Leonding
 ifndef::imagesdir[:imagesdir: images]
-:toc: left
-:toclevels: 5
+:toc:
+:toclevels: 4
 //:toc-placement!:  // prevents the generation of the doc at this position, so it can be printed afterwards
 ifndef::sourcedir-code[:sourcedir-code: ../labs/openid-connect-policies/src/main/java/at/htl]
 ifndef::sourcedir-test[:sourcedir-test: ../labs/openid-connect-policies/src/test/java/at/htl]
@@ -11,7 +11,6 @@ ifndef::sourcedir-test[:sourcedir-test: ../labs/openid-connect-policies/src/test
 :sectnums:    // Nummerierung der Überschriften / section numbering
 :experimental: // for displaying the keyboard-icons
 :linkattrs:   // so window="_blank" will be executed
-:toc:
 //Need this blank line after ifdef, don't know why...
 ifdef::backend-html5[]
 icon:file-text-o[link=https://raw.githubusercontent.com/htl-leonding-college/quarkus-security-lecture-notes/main/asciidocs/{docname}.adoc] ‏ ‏ ‎
