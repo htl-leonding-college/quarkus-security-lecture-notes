@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 2.0.16">
+<meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="Thomas Stütz">
 <link rel="icon" type="image/png" href="themes/favicon.png">
-<title>Quarkus - Authorization with Keycloak (Policies)</title>
+<title>Quarkus Security Concepts</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -86,10 +86,10 @@ code{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;
 ul,ol,dl{line-height:1.6;margin-bottom:1.25em;list-style-position:outside;font-family:inherit}
 ul,ol{margin-left:1.5em}
 ul li ul,ul li ol{margin-left:1.25em;margin-bottom:0}
-ul.square li ul,ul.circle li ul,ul.disc li ul{list-style:inherit}
-ul.square{list-style-type:square}
 ul.circle{list-style-type:circle}
 ul.disc{list-style-type:disc}
+ul.square{list-style-type:square}
+ul.circle ul:not([class]),ul.disc ul:not([class]),ul.square ul:not([class]){list-style:inherit}
 ol li ul,ol li ol{margin-left:1.25em;margin-bottom:0}
 dl dt{margin-bottom:.3125em;font-weight:bold}
 dl dd{margin-bottom:1.25em}
@@ -195,7 +195,8 @@ body.toc2.toc-right{padding-left:0;padding-right:20em}}
 #content h1>a.link:hover,h2>a.link:hover,h3>a.link:hover,#toctitle>a.link:hover,.sidebarblock>.content>.title>a.link:hover,h4>a.link:hover,h5>a.link:hover,h6>a.link:hover{color:#a53221}
 details,.audioblock,.imageblock,.literalblock,.listingblock,.stemblock,.videoblock{margin-bottom:1.25em}
 details{margin-left:1.25rem}
-details>summary{cursor:pointer;display:block;position:relative;line-height:1.6;margin-bottom:.625rem;-webkit-tap-highlight-color:transparent}
+details>summary{cursor:pointer;display:block;position:relative;line-height:1.6;margin-bottom:.625rem;outline:none;-webkit-tap-highlight-color:transparent}
+details>summary::-webkit-details-marker{display:none}
 details>summary::before{content:"";border:solid transparent;border-left:solid;border-width:.3em 0 .3em .5em;position:absolute;top:.5em;left:-1.25rem;transform:translateX(15%)}
 details[open]>summary::before{border:solid transparent;border-top:solid;border-width:.5em .3em 0;transform:translateY(15%)}
 details>summary::after{content:"";width:1.25rem;height:1em;position:absolute;top:.3em;left:-1.25rem}
@@ -237,9 +238,8 @@ pre.prettyprint li:not(:first-child) code[data-lang]::before{display:none}
 table.linenotable{border-collapse:separate;border:0;margin-bottom:0;background:none}
 table.linenotable td[class]{color:inherit;vertical-align:top;padding:0;line-height:inherit;white-space:normal}
 table.linenotable td.code{padding-left:.75em}
-table.linenotable td.linenos{border-right:1px solid;opacity:.35;padding-right:.5em}
-pre.pygments .lineno{border-right:1px solid;opacity:.35;display:inline-block;margin-right:.75em}
-pre.pygments .lineno::before{content:"";margin-right:-.125em}
+table.linenotable td.linenos,pre.pygments .linenos{border-right:1px solid;opacity:.35;padding-right:.5em;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
+pre.pygments span.linenos{display:inline-block;margin-right:.75em}
 .quoteblock{margin:0 1em 1.25em 1.5em;display:table}
 .quoteblock:not(.excerpt)>.title{margin-left:-1.5em;margin-bottom:.75em}
 .quoteblock blockquote,.quoteblock p{color:rgba(0,0,0,.85);font-size:1.15rem;line-height:1.75;word-spacing:.1em;letter-spacing:0;font-style:italic;text-align:justify}
@@ -276,7 +276,7 @@ table.frame-none>colgroup+*>:first-child>*,table.frame-sides>colgroup+*>:first-c
 table.frame-none>:last-child>:last-child>*,table.frame-sides>:last-child>:last-child>*{border-bottom-width:0}
 table.frame-none>*>tr>:first-child,table.frame-ends>*>tr>:first-child{border-left-width:0}
 table.frame-none>*>tr>:last-child,table.frame-ends>*>tr>:last-child{border-right-width:0}
-table.stripes-all tr,table.stripes-odd tr:nth-of-type(odd),table.stripes-even tr:nth-of-type(even),table.stripes-hover tr:hover{background:#f8f8f7}
+table.stripes-all>*>tr,table.stripes-odd>*>tr:nth-of-type(odd),table.stripes-even>*>tr:nth-of-type(even),table.stripes-hover>*>tr:hover{background:#f8f8f7}
 th.halign-left,td.halign-left{text-align:left}
 th.halign-right,td.halign-right{text-align:right}
 th.halign-center,td.halign-center{text-align:center}
@@ -292,10 +292,11 @@ ol{margin-left:1.75em}
 ul li ol{margin-left:1.5em}
 dl dd{margin-left:1.125em}
 dl dd:last-child,dl dd:last-child>:last-child{margin-bottom:0}
-ol>li p,ul>li p,ul dd,ol dd,.olist .olist,.ulist .ulist,.ulist .olist,.olist .ulist{margin-bottom:.625em}
+li p,ul dd,ol dd,.olist .olist,.ulist .ulist,.ulist .olist,.olist .ulist{margin-bottom:.625em}
 ul.checklist,ul.none,ol.none,ul.no-bullet,ol.no-bullet,ol.unnumbered,ul.unstyled,ol.unstyled{list-style-type:none}
 ul.no-bullet,ol.no-bullet,ol.unnumbered{margin-left:.625em}
 ul.unstyled,ol.unstyled{margin-left:0}
+li>p:empty:only-child::before{content:"";display:inline-block}
 ul.checklist>li>p:first-child{margin-left:-1em}
 ul.checklist>li>p:first-child>.fa-square-o:first-child,ul.checklist>li>p:first-child>.fa-check-square-o:first-child{width:1.25em;font-size:.8em;position:relative;bottom:.125em}
 ul.checklist>li>p:first-child>input[type=checkbox]:first-child{margin-right:.25em}
@@ -338,8 +339,6 @@ sup.footnote a:active,sup.footnoteref a:active{text-decoration:underline}
 #footnotes .footnote a:first-of-type{font-weight:bold;text-decoration:none;margin-left:-1.05em}
 #footnotes .footnote:last-of-type{margin-bottom:0}
 #content #footnotes{margin-top:-.625em;margin-bottom:0;padding:.75em 0}
-.gist .file-data>table{border:0;background:#fff;width:100%;margin-bottom:0}
-.gist .file-data>table td.line-data{width:99%}
 div.unbreakable{page-break-inside:avoid}
 .big{font-size:larger}
 .small{font-size:smaller}
@@ -450,26 +449,36 @@ pre.rouge .hll * {
 </head>
 <body class="article toc2 toc-left">
 <div id="header">
-<h1>Quarkus - Authorization with Keycloak (Policies)</h1>
+<h1>Quarkus Security Concepts</h1>
 <div class="details">
 <span id="author" class="author">Thomas Stütz</span><br>
 <span id="revnumber">version 2.0.0,</span>
-<span id="revdate">2021-11-14</span>
+<span id="revdate">2023-04-07</span>
 <br><span id="revremark">Lecture Notes for Courses at HTL Leonding</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_keycloak_role_based_access_control_rbac">1. Keycloak Role-Based Access Control (RBAC)</a></li>
-<li><a href="#_keycloak_w_policies">2. Keycloak w/ Policies</a></li>
-<li><a href="#_keycloak_w_angular">3. Keycloak w/ Angular</a></li>
-<li><a href="#_security">4. Security</a>
+<li><a href="#_guides_on_quarkus_portal">1. Guides on Quarkus Portal</a></li>
+<li><a href="#_sicherheitskonzepte_in_quarkus">2. Sicherheitskonzepte in Quarkus</a>
 <ul class="sectlevel2">
-<li><a href="#_jwt_rbac">4.1. JWT RBAC</a></li>
-<li><a href="#_security_w_jdbc_realm">4.2. Security w/ JDBC Realm</a></li>
-<li><a href="#_security_w_jpa">4.3. Security w/ JPA</a></li>
-<li><a href="#_security_w_properties">4.4. Security w/ Properties</a></li>
-<li><a href="#_links">4.5. Links</a></li>
+<li><a href="#_credentials">2.1. Credentials</a></li>
+<li><a href="#_authentifizierung_und_autorisierung">2.2. Authentifizierung und Autorisierung</a></li>
+<li><a href="#_authentifizierungsmechanismen">2.3. Authentifizierungsmechanismen</a></li>
+<li><a href="#_authentifizierungsmechanismen_2">2.4. Authentifizierungsmechanismen</a></li>
+</ul>
+</li>
+<li><a href="#_following_section_is_work_in_progress">3. Following Section is "Work in Progress"</a></li>
+<li><a href="#_keycloak_role_based_access_control_rbac">4. Keycloak Role-Based Access Control (RBAC)</a></li>
+<li><a href="#_keycloak_w_policies">5. Keycloak w/ Policies</a></li>
+<li><a href="#_keycloak_w_angular">6. Keycloak w/ Angular</a></li>
+<li><a href="#_security">7. Security</a>
+<ul class="sectlevel2">
+<li><a href="#_jwt_rbac">7.1. JWT RBAC</a></li>
+<li><a href="#_security_w_jdbc_realm">7.2. Security w/ JDBC Realm</a></li>
+<li><a href="#_security_w_jpa">7.3. Security w/ JPA</a></li>
+<li><a href="#_security_w_properties">7.4. Security w/ Properties</a></li>
+<li><a href="#_links">7.5. Links</a></li>
 </ul>
 </li>
 </ul>
@@ -486,7 +495,387 @@ pre.rouge .hll * {
 </div>
 </div>
 <div class="sect1">
-<h2 id="_keycloak_role_based_access_control_rbac"><a class="anchor" href="#_keycloak_role_based_access_control_rbac"></a>1. Keycloak Role-Based Access Control (RBAC)</h2>
+<h2 id="_guides_on_quarkus_portal"><a class="anchor" href="#_guides_on_quarkus_portal"></a>1. Guides on Quarkus Portal</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://quarkus.io/guides/security-overview-concept" target="_blank" rel="noopener">Quarkus Security overview</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_sicherheitskonzepte_in_quarkus"><a class="anchor" href="#_sicherheitskonzepte_in_quarkus"></a>2. Sicherheitskonzepte in Quarkus</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_credentials"><a class="anchor" href="#_credentials"></a>2.1. Credentials</h3>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Login credentials authenticate a user when logging into an online account over the Internet. At the very least, the credentials are username and password; however, a physical or human biometric element may also be required.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_authentifizierung_und_autorisierung"><a class="anchor" href="#_authentifizierung_und_autorisierung"></a>2.2. Authentifizierung und Autorisierung</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Grundsätzlich muss man sich zunächst authentifizieren &#8594; <strong>Wer bin ich?</strong></p>
+</li>
+<li>
+<p>Anschließend ist man autorisiert, um auf Ressourcen zuzugreifen &#8594; <strong>Was darf ich?</strong></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_authentifizierungsmechanismen"><a class="anchor" href="#_authentifizierungsmechanismen"></a>2.3. Authentifizierungsmechanismen</h3>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Quarkus kennt den Begriff der <a href="https://quarkus.io/guides/security-built-in-authentication-support-concept#proactive-authentication">proaktiven Authentifizierung</a> wobei im Request vorhandene Credentials immer abgeprüft werden und falls diese nicht gültig sind, wird auch der Zugriff zu public-Pages verwehrt.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_basic_http_authentication"><a class="anchor" href="#_basic_http_authentication"></a>2.3.1. Basic HTTP authentication</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>HTTP Basic Authentication is one of the least resource-demanding techniques that enforce access controls to the Web resources. It uses <strong>fields in the HTTP header</strong> and does not require HTTP cookies, session identifiers, or login pages.</p>
+</li>
+<li>
+<p>An HTTP user agent, such as a web browser, uses an Authorization header to provide a user name and password in each HTTP request. The header is specified as Authorization: Basic &lt;credentials&gt;, where credentials are the Base64 encoding of the user ID and password joined by a colon, as shown in the following example.</p>
+</li>
+<li>
+<p>Sources:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://quarkus.io/guides/security-built-in-authentication-support-concept#security-basic-authentication-concept" target="_blank" rel="noopener">Basic Authentication Concept</a></p>
+</li>
+<li>
+<p><a href="https://quarkus.io/guides/security-basic-authentication-concept" target="_blank" rel="noopener">Basic Authentication</a></p>
+</li>
+<li>
+<p><a href="https://quarkus.io/guides/security-basic-authentication-tutorial" target="_blank" rel="noopener">Secure a Quarkus application with Basic authentication tutorial</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_form_http_authentication"><a class="anchor" href="#_form_http_authentication"></a>2.3.2. Form HTTP authentication</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Quarkus provides form based authentication that works in a similar manner to traditional Servlet form based auth. Unlike traditional form authentication, the authenticated user is not stored in an HTTP session, as Quarkus does not provide clustered HTTP session support.</p>
+</li>
+<li>
+<p>Instead, the authentication information is stored in an <strong>encrypted cookie</strong>, which can be read by all members of the cluster (provided they all share the same encryption key).</p>
+</li>
+<li>
+<p>Sources:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://quarkus.io/guides/security-built-in-authentication-support-concept#form-auth" target="_blank" rel="noopener">Form Based Authentication Concept</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_webauthn_authentication"><a class="anchor" href="#_webauthn_authentication"></a>2.3.3. WebAuthn authentication</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>The Web Authentication API (also known as WebAuthn) is a specification written by the W3C and FIDO, with the participation of Google, Mozilla, Microsoft, Yubico, and others. The API allows servers to register and authenticate users using public key cryptography instead of a password.</p>
+</li>
+<li>
+<p>With WebAuthn, servers can integrate with authenticators such as the YubiKey, a USB token, a smart phone, Apple’s Touch ID, and Windows Hello. The private key is securely stored on the device, while the server stores the public key and randomly generates challenges for the authenticator to sign. The signature proves possession of the private key, and the random challenge prevents replay attacks. <a href="https://developers.yubico.com/WebAuthn/" target="_blank" rel="noopener">source</a></p>
+</li>
+<li>
+<p>Sources:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://webauthn.guide/" target="_blank" rel="noopener">WebAuthn Homepage</a></p>
+</li>
+<li>
+<p><a href="https://quarkus.io/guides/security-webauthn" target="_blank" rel="noopener">Using Security with WebAuthn - Tutorial</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_mutual_tls_authentication"><a class="anchor" href="#_mutual_tls_authentication"></a>2.3.4. (Mutual TLS Authentication)</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Quarkus provides mTLS authentication so that you can authenticate users based on their X.509 certificates.</p>
+</li>
+<li>
+<p><a href="https://quarkus.io/guides/security-built-in-authentication-support-concept#mutual-tls" target="_blank" rel="noopener">Mutual TLS Authentication Concept</a></p>
+</li>
+<li>
+<p><a href="https://quarkus.io/guides/http-reference#ssl" target="_blank" rel="noopener">Supporting secure connections with SSL</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_openid_connect_authentication"><a class="anchor" href="#_openid_connect_authentication"></a>2.3.5. OpenID Connect authentication</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>The Bearer Token mechanism extracts the token from the HTTP Authorization header. The Authorization Code Flow mechanism redirects the user to an OIDC provider to authenticate the identity of the user. After the user is redirected back to Quarkus, the mechanism completes the authentication process by exchanging the provided code that was granted for the ID, access, and refresh tokens.</p>
+</li>
+<li>
+<p>Als OIDC-Provider werden oft Google, Microsoft, Yahoo, &#8230;&#8203; verwendet.</p>
+</li>
+<li>
+<p>Als on-premise Lösung verwenden wir Keycloak</p>
+</li>
+<li>
+<p>Begriffe</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Bearer token</p>
+</li>
+<li>
+<p>Authorization Code Flow</p>
+</li>
+<li>
+<p>OIDC provider (OpenID Connect provider)</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Sources</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://quarkus.io/guides/security-overview-concept#openid-connect-authentication">OpenID Connect authentication concept</a></p>
+</li>
+<li>
+<p><a href="https://quarkus.io/guides/security-openid-connect" target="_blank" rel="noopener">Using OpenID Connect (OIDC) to Protect Service Applications using Bearer Token Authorization - Tutorial</a></p>
+</li>
+<li>
+<p><a href="https://quarkus.io/guides/security-openid-connect-web-authentication" target="_blank" rel="noopener">OpenID Connect (OIDC) authorization code flow mechanism - Tutorial</a></p>
+</li>
+<li>
+<p><a href="https://quarkus.io/guides/security-keycloak-authorization" target="_blank" rel="noopener">Using OpenID Connect (OIDC) and Keycloak to centralize authorization - Tutorial</a></p>
+</li>
+<li>
+<p><a href="https://quarkus.io/guides/security-keycloak-admin-client" target="_blank" rel="noopener">Configuring Keycloak programmatically - Tutorial</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_jwt_authentication"><a class="anchor" href="#_jwt_authentication"></a>2.3.6. JWT authentication</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Man muss nicht Keycloak verwenden, sondern kann anstelle dessen die JWT selbst erzeugen und verwenden.</p>
+</li>
+<li>
+<p>The quarkus-smallrye-jwt extension provides a MicroProfile JSON Web Token (JWT) 1.2.1 implementation and multiple options to verify signed and encrypted JWT tokens and represents them as org.eclipse.microprofile.jwt.JsonWebToken.</p>
+</li>
+<li>
+<p>quarkus-smallrye-jwt is an alternative to the quarkus-oidc Bearer Token authentication mechanism, and verifies only JWT tokens by using either PEM keys or the refreshable JWK key set. quarkus-smallrye-jwt also provides the JWT generation API, which you can use to easily create signed, inner-signed, and encrypted JWT tokens.</p>
+</li>
+<li>
+<p>Begriffe:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>RBAC: Role-based Access Control</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Sources</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://quarkus.io/guides/security-overview-concept#smallrye-jwt">SmallRye JWT authentication Concept</a></p>
+</li>
+<li>
+<p><a href="https://quarkus.io/guides/security-jwt" target="_blank" rel="noopener">Using JWT RBAC - Tutorial</a></p>
+</li>
+<li>
+<p><a href="https://jwt.io/" target="_blank" rel="noopener">JWT.io</a></p>
+</li>
+<li>
+<p><a href="https://www.eclipse.org/community/eclipse_newsletter/2017/september/article2.php" target="_blank" rel="noopener">Eclipse MicroProfile - JWT RBAC Security (MP-JWT)</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_oauth2_authentication"><a class="anchor" href="#_oauth2_authentication"></a>2.3.7. (OAuth2 authentication)</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Alternative (Vorläufer) von oidc</p>
+</li>
+<li>
+<p>sources:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://quarkus.io/guides/security-oauth2" target="_blank" rel="noopener">Using OAuth2 RBAC - Tutorial</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_role_based_access_control_rbac"><a class="anchor" href="#_role_based_access_control_rbac"></a>2.3.8. Role-based access control (RBAC)</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Provider</p>
+<div class="ulist">
+<ul>
+<li>
+<p>JDBC</p>
+</li>
+<li>
+<p>JPA</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Frage: Wie kann man eine Applikation schützen?</p>
+</li>
+<li>
+<p>Antwort: Verschiedene Arten bei</p>
+</li>
+<li>
+<p>IdentityProvider zur Authentifizierung (authentication)</p>
+<div class="ulist">
+<ul>
+<li>
+<p>basic auth</p>
+</li>
+<li>
+<p>authn</p>
+</li>
+<li>
+<p>oidc</p>
+</li>
+<li>
+<p>JWT</p>
+</li>
+<li>
+<p>oauth2</p>
+</li>
+<li>
+<p>LDAP</p>
+</li>
+<li>
+<p>&#8230;&#8203;</p>
+</li>
+<li>
+<p>Es gibt auch Quarkus-eigene IDentity Provider, die ohne Keycloak funktionieren</p>
+<div class="ulist">
+<ul>
+<li>
+<p>JDBC-IdentityProvider</p>
+</li>
+<li>
+<p>JPA-IdentityProvider</p>
+</li>
+<li>
+<p>User Properties-IdentityProvider</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Autorisierung (authorization)</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Durch Verwendung von Keycloak</p>
+<div class="ulist">
+<ul>
+<li>
+<p>RBAC: im Code werden durch Anntotaionen die Authorisierung angegeben (@RolesAllowed&#8230;&#8203;)</p>
+</li>
+<li>
+<p>Policies: Im Code gibt es keine Autorisierungs-Annotationen. Sämtliche Routes werden für die einzelnen Rollen im Keycloak definiert</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_authentifizierungsmechanismen_2"><a class="anchor" href="#_authentifizierungsmechanismen_2"></a>2.4. Authentifizierungsmechanismen</h3>
+<div class="sect3">
+<h4 id="_rbac_role_based_access_control"><a class="anchor" href="#_rbac_role_based_access_control"></a>2.4.1. RBAC - Role Based Access Control</h4>
+
+</div>
+<div class="sect3">
+<h4 id="_centralized_authorization"><a class="anchor" href="#_centralized_authorization"></a>2.4.2. Centralized Authorization</h4>
+
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_following_section_is_work_in_progress"><a class="anchor" href="#_following_section_is_work_in_progress"></a>3. Following Section is "Work in Progress"</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_keycloak_role_based_access_control_rbac"><a class="anchor" href="#_keycloak_role_based_access_control_rbac"></a>4. Keycloak Role-Based Access Control (RBAC)</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p><a href="keycloak-rbac.html">open doc</a></p>
@@ -494,13 +883,13 @@ pre.rouge .hll * {
 </div>
 </div>
 <div class="sect1">
-<h2 id="_keycloak_w_policies"><a class="anchor" href="#_keycloak_w_policies"></a>2. Keycloak w/ Policies</h2>
+<h2 id="_keycloak_w_policies"><a class="anchor" href="#_keycloak_w_policies"></a>5. Keycloak w/ Policies</h2>
 <div class="sectionbody">
 
 </div>
 </div>
 <div class="sect1">
-<h2 id="_keycloak_w_angular"><a class="anchor" href="#_keycloak_w_angular"></a>3. Keycloak w/ Angular</h2>
+<h2 id="_keycloak_w_angular"><a class="anchor" href="#_keycloak_w_angular"></a>6. Keycloak w/ Angular</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p><a href="keycloak-angular.html">"open doc"</a></p>
@@ -508,28 +897,28 @@ pre.rouge .hll * {
 </div>
 </div>
 <div class="sect1">
-<h2 id="_security"><a class="anchor" href="#_security"></a>4. Security</h2>
+<h2 id="_security"><a class="anchor" href="#_security"></a>7. Security</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_jwt_rbac"><a class="anchor" href="#_jwt_rbac"></a>4.1. JWT RBAC</h3>
+<h3 id="_jwt_rbac"><a class="anchor" href="#_jwt_rbac"></a>7.1. JWT RBAC</h3>
 <div class="paragraph">
 <p><a href="jwt-rbac.html">"open doc"</a></p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_security_w_jdbc_realm"><a class="anchor" href="#_security_w_jdbc_realm"></a>4.2. Security w/ JDBC Realm</h3>
+<h3 id="_security_w_jdbc_realm"><a class="anchor" href="#_security_w_jdbc_realm"></a>7.2. Security w/ JDBC Realm</h3>
 
 </div>
 <div class="sect2">
-<h3 id="_security_w_jpa"><a class="anchor" href="#_security_w_jpa"></a>4.3. Security w/ JPA</h3>
+<h3 id="_security_w_jpa"><a class="anchor" href="#_security_w_jpa"></a>7.3. Security w/ JPA</h3>
 
 </div>
 <div class="sect2">
-<h3 id="_security_w_properties"><a class="anchor" href="#_security_w_properties"></a>4.4. Security w/ Properties</h3>
+<h3 id="_security_w_properties"><a class="anchor" href="#_security_w_properties"></a>7.4. Security w/ Properties</h3>
 
 </div>
 <div class="sect2">
-<h3 id="_links"><a class="anchor" href="#_links"></a>4.5. Links</h3>
+<h3 id="_links"><a class="anchor" href="#_links"></a>7.5. Links</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -544,7 +933,7 @@ pre.rouge .hll * {
 <div id="footer">
 <div id="footer-text">
 Version 2.0.0<br>
-Last updated 2021-11-14 17:52:51 UTC
+Last updated 2023-04-07 12:25:24 UTC
 </div>
 </div>
 </body>
