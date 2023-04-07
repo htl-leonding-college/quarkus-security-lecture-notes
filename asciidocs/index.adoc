@@ -154,6 +154,17 @@ IMPORTANT: Quarkus kennt den Begriff der https://quarkus.io/guides/security-buil
 *** Policies: Im Code gibt es keine Autorisierungs-Annotationen. Sämtliche Routes werden für die einzelnen Rollen im Keycloak definiert
 
 
+=== Authentifizierungsmechanismen
+
+==== RBAC - Role Based Access Control
+
+==== Centralized Authorization
+
+
+
+== Following Section is "Work in Progress"
+
+
 == Keycloak Role-Based Access Control (RBAC)
 
 <<keycloak-rbac.adoc#, open doc>>
