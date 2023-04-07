@@ -121,7 +121,7 @@ IMPORTANT: Quarkus kennt den Begriff der https://quarkus.io/guides/security-buil
 ** https://quarkus.io/guides/security-oauth2[Using OAuth2 RBAC - Tutorial^]
 
 
-=== Authentifizierungsmechanismen
+=== Autorisierungsmechanismen
 
 ==== Role-based access control (RBAC)
 
