@@ -14,7 +14,7 @@ ifndef::sourcedir-test[:sourcedir-test: ../labs/openid-connect-policies/src/test
 :toc:
 //Need this blank line after ifdef, don't know why...
 ifdef::backend-html5[]
-icon:file-text-o[link=https://raw.githubusercontent.com/htl-leonding-college/quarkus-security-lecture-notes/master/asciidocs/{docname}.adoc] ‏ ‏ ‎
+icon:file-text-o[link=https://raw.githubusercontent.com/htl-leonding-college/quarkus-security-lecture-notes/main/asciidocs/{docname}.adoc] ‏ ‏ ‎
 icon:github-square[link=https://github.com/htl-leonding-college/quarkus-security-lecture-notes] ‏ ‏ ‎
 icon:home[link=https://htl-leonding-college.github.io/quarkus-security-lecture-notes/]
 endif::backend-html5[]
