@@ -1,0 +1,555 @@
+= Quarkus Security Concepts
+Thomas Stütz
+2.0.0, 2023-04-07: Lecture Notes for Courses at HTL Leonding
+ifndef::imagesdir[:imagesdir: images]
+:toc: left
+:toclevels: 4
+//:toc-placement!:  // prevents the generation of the doc at this position, so it can be printed afterwards
+ifndef::sourcedir-code[:sourcedir-code: ../labs/openid-connect-policies/src/main/java/at/htl]
+ifndef::sourcedir-test[:sourcedir-test: ../labs/openid-connect-policies/src/test/java/at/htl]
+:icons: font
+:sectnums:    // Nummerierung der Überschriften / section numbering
+:experimental: // for displaying the keyboard-icons
+:linkattrs:   // so window="_blank" will be executed
+:toc:
+//Need this blank line after ifdef, don't know why...
+ifdef::backend-html5[]
+icon:file-text-o[link=https://raw.githubusercontent.com/htl-leonding-college/quarkus-security-lecture-notes/master/asciidocs/{docname}.adoc] ‏ ‏ ‎
+icon:github-square[link=https://github.com/htl-leonding-college/quarkus-security-lecture-notes] ‏ ‏ ‎
+icon:home[link=https://htl-leonding-college.github.io/quarkus-security-lecture-notes/]
+endif::backend-html5[]
+
+== Guides on Quarkus Portal
+
+* https://quarkus.io/guides/security-overview-concept[Quarkus Security overview^]
+
+== Sicherheitskonzepte in Quarkus
+
+=== Credentials
+
+IMPORTANT: Login credentials authenticate a user when logging into an online account over the Internet. At the very least, the credentials are username and password; however, a physical or human biometric element may also be required.
+
+=== Authentifizierung und Autorisierung
+
+* Grundsätzlich muss man sich zunächst authentifizieren -> *Wer bin ich?*
+* Anschließend ist man autorisiert, um auf Ressourcen zuzugreifen -> *Was darf ich?*
+
+=== Authentifizierungsmechanismen
+
+IMPORTANT: Quarkus kennt den Begriff der https://quarkus.io/guides/security-built-in-authentication-support-concept#proactive-authentication[proaktiven Authentifizierung] wobei im Request vorhandene Credentials immer abgeprüft werden und falls diese nicht gültig sind, wird auch der Zugriff zu public-Pages verwehrt.
+
+==== Basic HTTP authentication
+
+* HTTP Basic Authentication is one of the least resource-demanding techniques that enforce access controls to the Web resources. It uses *fields in the HTTP header* and does not require HTTP cookies, session identifiers, or login pages.
+
+* An HTTP user agent, such as a web browser, uses an Authorization header to provide a user name and password in each HTTP request. The header is specified as Authorization: Basic <credentials>, where credentials are the Base64 encoding of the user ID and password joined by a colon, as shown in the following example.
+
+* Sources:
+** https://quarkus.io/guides/security-built-in-authentication-support-concept#security-basic-authentication-concept[Basic Authentication Concept^]
+** https://quarkus.io/guides/security-basic-authentication-concept[Basic Authentication^]
+** https://quarkus.io/guides/security-basic-authentication-tutorial[Secure a Quarkus application with Basic authentication tutorial^]
+
+==== Form HTTP authentication
+
+* Quarkus provides form based authentication that works in a similar manner to traditional Servlet form based auth. Unlike traditional form authentication, the authenticated user is not stored in an HTTP session, as Quarkus does not provide clustered HTTP session support.
+
+* Instead, the authentication information is stored in an *encrypted cookie*, which can be read by all members of the cluster (provided they all share the same encryption key).
+
+* Sources:
+** https://quarkus.io/guides/security-built-in-authentication-support-concept#form-auth[Form Based Authentication Concept^]
+
+==== WebAuthn authentication
+
+* The Web Authentication API (also known as WebAuthn) is a specification written by the W3C and FIDO, with the participation of Google, Mozilla, Microsoft, Yubico, and others. The API allows servers to register and authenticate users using public key cryptography instead of a password.
+
+* With WebAuthn, servers can integrate with authenticators such as the YubiKey, a USB token, a smart phone, Apple’s Touch ID, and Windows Hello. The private key is securely stored on the device, while the server stores the public key and randomly generates challenges for the authenticator to sign. The signature proves possession of the private key, and the random challenge prevents replay attacks. https://developers.yubico.com/WebAuthn/[source^]
+
+* Sources:
+** https://webauthn.guide/[WebAuthn Homepage^]
+** https://quarkus.io/guides/security-webauthn[Using Security with WebAuthn - Tutorial^]
+
+
+==== (Mutual TLS Authentication)
+
+* Quarkus provides mTLS authentication so that you can authenticate users based on their X.509 certificates.
+
+* https://quarkus.io/guides/security-built-in-authentication-support-concept#mutual-tls[Mutual TLS Authentication Concept^]
+
+* https://quarkus.io/guides/http-reference#ssl[Supporting secure connections with SSL^]
+
+==== OpenID Connect authentication
+
+* The Bearer Token mechanism extracts the token from the HTTP Authorization header. The Authorization Code Flow mechanism redirects the user to an OIDC provider to authenticate the identity of the user. After the user is redirected back to Quarkus, the mechanism completes the authentication process by exchanging the provided code that was granted for the ID, access, and refresh tokens.
+
+* Als OIDC-Provider werden oft Google, Microsoft, Yahoo, ... verwendet.
+* Als on-premise Lösung verwenden wir Keycloak
+
+* Begriffe
+** Bearer token
+** Authorization Code Flow
+** OIDC provider (OpenID Connect provider)
+
+* Sources
+** https://quarkus.io/guides/security-overview-concept#openid-connect-authentication[OpenID Connect authentication concept]
+** https://quarkus.io/guides/security-openid-connect[Using OpenID Connect (OIDC) to Protect Service Applications using Bearer Token Authorization - Tutorial^]
+** https://quarkus.io/guides/security-openid-connect-web-authentication[OpenID Connect (OIDC) authorization code flow mechanism - Tutorial^]
+** https://quarkus.io/guides/security-keycloak-authorization[Using OpenID Connect (OIDC) and Keycloak to centralize authorization - Tutorial^]
+** https://quarkus.io/guides/security-keycloak-admin-client[Configuring Keycloak programmatically - Tutorial^]
+
+
+==== JWT authentication
+
+* Man muss nicht Keycloak verwenden, sondern kann anstelle dessen die JWT selbst erzeugen und verwenden.
+
+* The quarkus-smallrye-jwt extension provides a MicroProfile JSON Web Token (JWT) 1.2.1 implementation and multiple options to verify signed and encrypted JWT tokens and represents them as org.eclipse.microprofile.jwt.JsonWebToken.
+
+* quarkus-smallrye-jwt is an alternative to the quarkus-oidc Bearer Token authentication mechanism, and verifies only JWT tokens by using either PEM keys or the refreshable JWK key set. quarkus-smallrye-jwt also provides the JWT generation API, which you can use to easily create signed, inner-signed, and encrypted JWT tokens.
+
+* Begriffe:
+** RBAC: Role-based Access Control
+
+* Sources
+** https://quarkus.io/guides/security-overview-concept#smallrye-jwt[SmallRye JWT authentication Concept]
+** https://quarkus.io/guides/security-jwt[Using JWT RBAC - Tutorial^]
+** https://jwt.io/[JWT.io^]
+** https://www.eclipse.org/community/eclipse_newsletter/2017/september/article2.php[Eclipse MicroProfile - JWT RBAC Security (MP-JWT)^]
+
+==== (OAuth2 authentication)
+
+* Alternative (Vorläufer) von oidc
+
+* sources:
+** https://quarkus.io/guides/security-oauth2[Using OAuth2 RBAC - Tutorial^]
+
+
+==== Role-based access control (RBAC)
+
+* Provider
+** JDBC
+** JPA
+
+
+
+* Frage: Wie kann man eine Applikation schützen?
+
+* Antwort: Verschiedene Arten bei
+
+* IdentityProvider zur Authentifizierung (authentication)
+** basic auth
+** authn
+** oidc
+** JWT
+** oauth2
+** LDAP
+** ...
+
+** Es gibt auch Quarkus-eigene IDentity Provider, die ohne Keycloak funktionieren
+*** JDBC-IdentityProvider
+*** JPA-IdentityProvider
+*** User Properties-IdentityProvider
+
+* Autorisierung (authorization)
+** Durch Verwendung von Keycloak
+*** RBAC: im Code werden durch Anntotaionen die Authorisierung angegeben (@RolesAllowed...)
+*** Policies: Im Code gibt es keine Autorisierungs-Annotationen. Sämtliche Routes werden für die einzelnen Rollen im Keycloak definiert
+
+
+== Keycloak Role-Based Access Control (RBAC)
+
+<<keycloak-rbac.adoc#, open doc>>
+
+== Keycloak w/ Policies
+
+
+== Keycloak w/ Angular
+
+//include::keycloak-angular.adoc[]
+<<keycloak-angular.adoc#, "open doc">>
+
+== Security
+
+=== JWT RBAC
+
+<<jwt-rbac.adoc#, "open doc">>
+
+=== Security w/ JDBC Realm
+
+=== Security w/ JPA
+
+=== Security w/ Properties
+
+=== Links
+
+* https://github.com/orgs/quarkus-course/repositories[gh-repository w/ quarkus examples, window="_blank"]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+////
+
+
+== Authorization with Policies
+
+see also https://quarkus.io/guides/security-keycloak-authorization[Quarkus - Using OpenID Connect and Keycloak to Centralize Authorizations]
+
+== Create your Quarkus Project
+
+----
+mvn io.quarkus:quarkus-maven-plugin:1.5.0.Final:create \
+  -DprojectGroupId=at.htl \
+  -DprojectArtifactId=quarkus-openid-connect \
+  -Dextensions="oidc, resteasy-jsonb"
+----
+
+== Add the Endpoint (Resource)
+
+.UserResource.java
+[source,java]
+----
+include::{sourcedir-code}/UserResource.java[]
+----
+
+== Application configuration
+
+.application.properties
+[source,properties,options="nowrap"]
+----
+include::{sourcedir-code}/../../../resources/application.properties[]
+----
+
+== Make the Initial Commit
+
+[source,shell]
+----
+cd openid-connect-policies
+
+git init
+git add .
+git commit -m "inital commit"
+git remote add origin https://github.com/<your github-account>/openid-connect-policies.git
+git push -u origin master
+
+idea .
+----
+
+== Add a extension
+
+[source,shell]
+----
+./mvnw quarkus:add-extension -Dextensions="keycloak-authorization"
+----
+
+== Start Keycloak
+
+[source,shell]
+----
+docker run --name keycloak -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=admin -e DB_VENDOR=h2 -p 8180:8080 jboss/keycloak
+----
+
+Open in Browser:
+http://localhost:8180
+
+== Configure Keycloak
+
+-> Administration Console
+
+* Add realm
+** Name: quarkus
+** kbd:[Create]
+* Clients
+** kbd:[Create]
+*** ClientID: my-backend-service
+*** Client Protocol: openid-connect
+*** Click kbd:[Save]
+* Users
+** kbd:[Add user]
+*** Details
+**** Username: admin
+**** Email Verified: ON
+**** kbd:[Save]
+*** Credentials
+**** Password: passme
+**** Password Confirmation: passme
+**** Temporary: OFF
+**** kbd:[Set Password]
+**** Are you sure you want to set a password for the user?: kbd:[Set password]
+
+Now make a User "user" like "admin".
+
+* Clients -> my-backend-service
+** Settings
+*** Access Type: confidential
+*** Service Accounts Enabled: ON
+*** Authorization Enabled: OFF
+*** Valid Redirect URIs: http://localhost:8080/
+*** kbd:[Save]
+** Credentials
+*** Copy Secret into clipboard
+*** Paste the secret in application.properties in the line "quarkus.oidc.credentials.secret"
+
+== Access Keycloak
+
+Now we will access Keycloak for the first time and retrieve the access token.
+
+. Create a folder called `http-request` in the project root.
+. Create a file called `requests.http` (the http-ending is important)
+. Open the file `requests.http` and click on `Add Environmental File` -> Option `Regular`
+
+Now a file called `http-client.env.json` was created:
+
+We define some variables:
+
+.http-client.env.json
+----
+{
+  "dev": {
+    "keycloak-host": "http://localhost:8180",
+    "quarkus-host": "http://localhost:8080",
+    "username": "my-backend-service",
+    "password": "97fdb5b3-6fff-4090-966a-0f1c7355d0ba" // <.>
+  }
+}
+----
+
+<.> use your secret
+
+.requests.http
+----
+POST {{keycloak-host}}/auth/realms/quarkus/protocol/openid-connect/token
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/x-www-form-urlencoded
+
+username=user&password=passme&grant_type=password
+----
+
+The output shows status code 201 and the access token.
+
+== Configure Resources
+
+* Clients -> my-backend-service
+** Authorization
+*** Resources
+**** Actions - Delete the Default Resource -> Confirm the deletion
+**** kbd:[Create]
+**** Add Resource
+***** Name: Users resource
+***** Display name: Users resource
+***** URI: /api/users/*
+***** kbd:[Save]
+**** kbd:[Create]
+**** Add Resource
+***** Name: Admin resource
+***** Display name: Admin resource
+***** URI: /api/admin/*
+***** kbd:[Save]
+
+image:clients-authorization-resources.png[]
+
+* Roles
+** kbd:[Add Role]
+*** Role Name: user
+*** kbd:[Save]
+** kbd:[Add Role]
+*** Role Name: admin
+*** kbd:[Save]
+
+* Users
+** kbd:[View all users]
+** Click on ID of user 'user'
+*** Role Mappings
+**** add Role 'user' to Assigned Roles
+** Click on ID of user 'admin'
+*** Role Mappings
+**** add Roles 'user' and `admin` to Assigned Roles
+
+* Clients -> my-backend-service
+** Authorization
+*** Policies
+**** Create Policy ... -> Role
+***** Name: Users policy
+***** Description: Ability to use users resources
+***** Realm Roles: user
+***** kbd:[Save]
+**** Create Policy ... -> Role
+***** Name: Admin policy
+***** Description: Ability to use admins resources
+***** Realm Roles: admin
+***** kbd:[Save]
+
+*** Permissions
+**** Default Permission -> kbd:[Delete] -> Confirm Deletion
+**** Create Permission... -> Resource-Based
+***** Name: Users permission
+***** Resources: Users resource
+***** Apply Policy: Users policy
+***** kbd:[Save]
+**** Create Permission... -> Resource-Based
+***** Name: Admins permission
+***** Resources: Admins resource
+***** Apply Policy: Admins policy
+***** kbd:[Save]
+
+image:clients-authorization-permissions.png[]
+
+== Test the Access to the Resources
+
+=== Resource admin is unauthorized (w/o any authorization)
+
+.Request with variable
+----
+GET {{quarkus-host}}/api/admin
+----
+
+.Request + Response
+----
+GET http://localhost:8080/api/admin
+
+HTTP/1.1 401 Unauthorized
+content-length: 0
+
+<Response body is empty>
+
+Response code: 401 (Unauthorized); Time: 644ms; Content length: 0 bytes
+----
+
+=== Resource users is unauthorized (w/o any authorization)
+
+.Request with variable
+----
+GET {{quarkus-host}}/api/users
+----
+
+.Request + Response
+----
+GET http://localhost:8080/api/users
+
+HTTP/1.1 401 Unauthorized
+content-length: 0
+
+<Response body is empty>
+
+Response code: 401 (Unauthorized); Time: 54ms; Content length: 0 bytes
+----
+
+
+
+
+
+=== User 'user' access Resource 'users'
+
+==== Retrieves access token
+
+----
+POST {{keycloak-host}}/auth/realms/quarkus/protocol/openid-connect/token
+Authorization: Basic {{username}} {{password}}   # <.>
+Content-Type: application/x-www-form-urlencoded
+
+username=user&password=passme&grant_type=password
+
+> {% client.global.set("auth_token", response.body.access_token); %}  # <.>
+----
+
+<.> you have to provide: `Authorization: Basic {client-id} {secret}`
+<.> the access-token is saved in a variable `auth_token`, so the next request can use it
+
+==== Accesses the users-Resource - 200
+
+----
+GET {{quarkus-host}}/api/users
+Authorization: Bearer {{auth_token}}
+----
+
+==== Accesses the admin-Resource - 403
+
+.Request with variable
+----
+GET {{quarkus-host}}/api/admin
+Authorization: Bearer {{auth_token}}
+----
+
+.Request + Response
+----
+GET http://localhost:8080/api/admin
+
+HTTP/1.1 403 Forbidden
+content-length: 0
+
+<Response body is empty>
+----
+
+
+
+
+
+
+=== User 'admin' access Resource 'users'
+
+==== Retrieves access token
+
+----
+POST {{keycloak-host}}/auth/realms/quarkus/protocol/openid-connect/token
+Authorization: Basic {{username}} {{password}}  # <.>
+Content-Type: application/x-www-form-urlencoded
+
+username=admin&password=passme&grant_type=password  # <.>
+
+> {% client.global.set("auth_token", response.body.access_token); %}
+----
+
+<.> you have to provide: `Authorization: Basic {client-id} {secret}`
+<.> the access-token is saved in a variable `auth_token`, so the next request can use it
+
+==== Accesses the users-Resource - 200
+
+----
+GET {{quarkus-host}}/api/users
+Authorization: Bearer {{auth_token}}
+----
+
+==== Accesses the admin-Resource - 200
+
+.Request with variable
+----
+GET {{quarkus-host}}/api/admin
+Authorization: Bearer {{auth_token}}
+----
+
+.Request + Response
+----
+GET http://localhost:8080/api/admin
+
+HTTP/1.1 200 OK
+Cache-Control: no-cache
+Content-Length: 10
+Content-Type: application/json
+
+I am admin
+----
+
+
+////
+

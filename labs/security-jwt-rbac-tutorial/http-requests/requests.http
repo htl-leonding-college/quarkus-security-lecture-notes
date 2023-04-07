@@ -1,0 +1,16 @@
+POST http://localhost:8080/profile
+Content-Type: application/x-www-form-urlencoded
+
+username=Dagobert&email=dago@entenhausen.org&birthdate=14/11/1935
+
+> {%
+     client.global.set("auth_token", response.body.token);
+     client.log(client.global.get("auth_token"));
+  %}
+
+###
+
+GET http://localhost:8080/profile?username=Dagobert&email=dago@entenhausen.org&birthdate=14/11/1935
+Authorization: Bearer {{auth_token}}
+
+###

@@ -1,0 +1,8 @@
+target/
+.idea/
+db/
+*.jar
+.DS_Store
+*.iml
+dist/
+asciidocs/slides/revealjs/
