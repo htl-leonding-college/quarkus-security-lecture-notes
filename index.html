@@ -764,23 +764,56 @@ Quarkus kennt den Begriff der <a href="https://quarkus.io/guides/security-built-
 </ul>
 </div>
 </div>
+</div>
+<div class="sect2">
+<h3 id="_authentifizierungsmechanismen_2"><a class="anchor" href="#_authentifizierungsmechanismen_2"></a>2.4. Authentifizierungsmechanismen</h3>
 <div class="sect3">
-<h4 id="_role_based_access_control_rbac"><a class="anchor" href="#_role_based_access_control_rbac"></a>2.3.8. Role-based access control (RBAC)</h4>
+<h4 id="_role_based_access_control_rbac"><a class="anchor" href="#_role_based_access_control_rbac"></a>2.4.1. Role-based access control (RBAC)</h4>
 <div class="ulist">
 <ul>
 <li>
-<p>Provider</p>
-<div class="ulist">
-<ul>
-<li>
-<p>JDBC</p>
+<p>durch Annotationen in den Endpoints wird der Zugriff durch Rollen geregelt.</p>
 </li>
 <li>
-<p>JPA</p>
+<p>Identity-Provider</p>
+<div class="ulist">
+<ul>
+<li>
+<p>JDBC-IdentityProvider</p>
+</li>
+<li>
+<p>JPA-IdentityProvider</p>
+</li>
+<li>
+<p>User Properties-IdentityProvider</p>
+</li>
+<li>
+<p>externer Identity Provider zB Keycloak</p>
 </li>
 </ul>
 </div>
 </li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_centralized_authorization"><a class="anchor" href="#_centralized_authorization"></a>2.4.2. Centralized Authorization</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Der Provider (zB Keycloak) enthält alle Infos welche Reolle auf welche Endpoints zugreifen darf.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_following_section_is_work_in_progress"><a class="anchor" href="#_following_section_is_work_in_progress"></a>3. Following Section is "Work in Progress"</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
 <li>
 <p>Frage: Wie kann man eine Applikation schützen?</p>
 </li>
@@ -855,25 +888,6 @@ Quarkus kennt den Begriff der <a href="https://quarkus.io/guides/security-built-
 </div>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_authentifizierungsmechanismen_2"><a class="anchor" href="#_authentifizierungsmechanismen_2"></a>2.4. Authentifizierungsmechanismen</h3>
-<div class="sect3">
-<h4 id="_rbac_role_based_access_control"><a class="anchor" href="#_rbac_role_based_access_control"></a>2.4.1. RBAC - Role Based Access Control</h4>
-
-</div>
-<div class="sect3">
-<h4 id="_centralized_authorization"><a class="anchor" href="#_centralized_authorization"></a>2.4.2. Centralized Authorization</h4>
-
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_following_section_is_work_in_progress"><a class="anchor" href="#_following_section_is_work_in_progress"></a>3. Following Section is "Work in Progress"</h2>
-<div class="sectionbody">
-
-</div>
-</div>
 <div class="sect1">
 <h2 id="_keycloak_role_based_access_control_rbac"><a class="anchor" href="#_keycloak_role_based_access_control_rbac"></a>4. Keycloak Role-Based Access Control (RBAC)</h2>
 <div class="sectionbody">
@@ -933,7 +947,7 @@ Quarkus kennt den Begriff der <a href="https://quarkus.io/guides/security-built-
 <div id="footer">
 <div id="footer-text">
 Version 2.0.0<br>
-Last updated 2023-04-07 12:34:35 UTC
+Last updated 2023-04-07 12:40:49 UTC
 </div>
 </div>
 </body>
