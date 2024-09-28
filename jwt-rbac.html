@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 2.0.18">
+<meta name="generator" content="Asciidoctor 2.0.20">
 <link rel="icon" type="image/png" href="themes/favicon.png">
 <title>JWT-RBAC</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
@@ -209,13 +209,10 @@ table.tableblock.fit-content>caption.title{white-space:nowrap;width:0}
 .admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #dddddf;color:rgba(0,0,0,.6);word-wrap:anywhere}
 .admonitionblock>table td.content>:last-child>:last-child{margin-bottom:0}
 .exampleblock>.content{border:1px solid #e6e6e6;margin-bottom:1.25em;padding:1.25em;background:#fff;border-radius:4px}
-.exampleblock>.content>:first-child{margin-top:0}
-.exampleblock>.content>:last-child{margin-bottom:0}
 .sidebarblock{border:1px solid #dbdbd6;margin-bottom:1.25em;padding:1.25em;background:#f3f3f2;border-radius:4px}
-.sidebarblock>:first-child{margin-top:0}
-.sidebarblock>:last-child{margin-bottom:0}
 .sidebarblock>.content>.title{color:#7a2518;margin-top:0;text-align:center}
-.exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
+.exampleblock>.content>:first-child,.sidebarblock>.content>:first-child{margin-top:0}
+.exampleblock>.content>:last-child,.exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
 .literalblock pre,.listingblock>.content>pre{border-radius:4px;overflow-x:auto;padding:1em;font-size:.8125em}
 @media screen and (min-width:768px){.literalblock pre,.listingblock>.content>pre{font-size:.90625em}}
 @media screen and (min-width:1280px){.literalblock pre,.listingblock>.content>pre{font-size:1em}}
@@ -394,7 +391,7 @@ b.conum *{color:inherit!important}
 dt,th.tableblock,td.content,div.footnote{text-rendering:optimizeLegibility}
 h1,h2,p,td.content,span.alt,summary{letter-spacing:-.01em}
 p strong,td.content strong,div.footnote strong{letter-spacing:-.005em}
-p,blockquote,dt,td.content,span.alt,summary{font-size:1.0625rem}
+p,blockquote,dt,td.content,td.hdlist1,span.alt,summary{font-size:1.0625rem}
 p{margin-bottom:1.25rem}
 .sidebarblock p,.sidebarblock dt,.sidebarblock td.content,p.tableblock{font-size:1em}
 .exampleblock>.content{background:#fffef7;border-color:#e0e0dc;box-shadow:0 1px 4px #e0e0dc}
@@ -552,12 +549,13 @@ pre.rouge .gs {
 }
 </style>
 <style>
-pre.rouge .hll {
-  background-color: #ffc;
-}
-pre.rouge .hll * {
-  background-color: initial;
-}
+    pre.rouge .hll {
+        background-color: #ffc;
+        display: block;
+    }
+    pre.rouge .hll * {
+        background-color: initial;
+    }
 </style>
 </head>
 <body class="article toc2 toc-left">
@@ -932,39 +930,7 @@ e is 65537 (0x10001)</pre>
 <div class="listingblock">
 <div class="title">UserResource.java</div>
 <div class="content">
-<pre class="rouge highlight"><code data-lang="java"><span class="kn">package</span> <span class="nn">at.htl</span><span class="o">;</span>
-
-<span class="kn">import</span> <span class="nn">io.quarkus.security.identity.SecurityIdentity</span><span class="o">;</span>
-<span class="kn">import</span> <span class="nn">org.jboss.resteasy.annotations.cache.NoCache</span><span class="o">;</span>
-
-<span class="kn">import</span> <span class="nn">javax.annotation.security.RolesAllowed</span><span class="o">;</span>
-<span class="kn">import</span> <span class="nn">javax.inject.Inject</span><span class="o">;</span>
-<span class="kn">import</span> <span class="nn">javax.ws.rs.GET</span><span class="o">;</span>
-<span class="kn">import</span> <span class="nn">javax.ws.rs.Path</span><span class="o">;</span>
-<span class="kn">import</span> <span class="nn">javax.ws.rs.Produces</span><span class="o">;</span>
-<span class="kn">import</span> <span class="nn">javax.ws.rs.core.MediaType</span><span class="o">;</span>
-
-<span class="nd">@Path</span><span class="o">(</span><span class="s">"api"</span><span class="o">)</span>
-<span class="nd">@Produces</span><span class="o">(</span><span class="nc">MediaType</span><span class="o">.</span><span class="na">APPLICATION_JSON</span><span class="o">)</span>
-<span class="kd">public</span> <span class="kd">class</span> <span class="nc">UserResource</span> <span class="o">{</span>
-
-    <span class="nd">@Inject</span>
-    <span class="nc">SecurityIdentity</span> <span class="n">identity</span><span class="o">;</span>
-
-    <span class="nd">@GET</span>
-    <span class="nd">@Path</span><span class="o">(</span><span class="s">"/users"</span><span class="o">)</span>
-    <span class="nd">@NoCache</span>
-    <span class="kd">public</span> <span class="nc">SecurityIdentity</span> <span class="nf">getUserInfo</span><span class="o">()</span> <span class="o">{</span>
-        <span class="k">return</span> <span class="n">identity</span><span class="o">;</span>
-    <span class="o">}</span>
-
-    <span class="nd">@GET</span>
-    <span class="nd">@Path</span><span class="o">(</span><span class="s">"/admin"</span><span class="o">)</span>
-    <span class="nd">@NoCache</span>
-    <span class="kd">public</span> <span class="nc">String</span> <span class="nf">getAdminSecret</span><span class="o">()</span> <span class="o">{</span>
-        <span class="k">return</span> <span class="s">"I am admin"</span><span class="o">;</span>
-    <span class="o">}</span>
-<span class="o">}</span></code></pre>
+<pre class="rouge highlight"><code data-lang="java"><span class="nc">Unresolved</span> <span class="n">directive</span> <span class="n">in</span> <span class="n">jwt</span><span class="o">-</span><span class="n">rbac</span><span class="o">.</span><span class="na">adoc</span> <span class="o">-</span> <span class="nl">include:</span><span class="o">:../</span><span class="n">labs</span><span class="o">/</span><span class="n">openid</span><span class="o">-</span><span class="n">connect</span><span class="o">-</span><span class="n">policies</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">main</span><span class="o">/</span><span class="n">java</span><span class="o">/</span><span class="n">at</span><span class="o">/</span><span class="n">htl</span><span class="o">/</span><span class="nc">UserResource</span><span class="o">.</span><span class="na">java</span><span class="o">[]</span></code></pre>
 </div>
 </div>
 </div>
@@ -975,11 +941,7 @@ e is 65537 (0x10001)</pre>
 <div class="listingblock">
 <div class="title">application.properties</div>
 <div class="content">
-<pre class="rouge highlight nowrap"><code data-lang="properties"><span class="py">quarkus.oidc.auth-server-url</span><span class="p">=</span><span class="s">http://localhost:8180/auth/realms/quarkus</span>
-<span class="py">quarkus.oidc.client-id</span><span class="p">=</span><span class="s">my-backend-service</span>
-<span class="py">quarkus.oidc.credentials.secret</span><span class="p">=</span><span class="s">97fdb5b3-6fff-4090-966a-0f1c7355d0ba</span>
-
-<span class="py">quarkus.keycloak.policy-enforcer.enable</span><span class="p">=</span><span class="s">true</span></code></pre>
+<pre class="rouge highlight nowrap"><code data-lang="properties"><span class="err">Unresolved</span> <span class="err">directive</span> <span class="err">in</span> <span class="err">jwt-rbac.adoc</span> <span class="err">-</span> <span class="py">include</span><span class="p">:</span><span class="s">:../labs/openid-connect-policies/src/main/java/at/htl/../../../resources/application.properties[]</span></code></pre>
 </div>
 </div>
 <div class="sect2">
@@ -1712,7 +1674,7 @@ I am admin</pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-04-07 12:53:52 UTC
+Last updated 2024-09-28 16:30:44 UTC
 </div>
 </div>
 </body>

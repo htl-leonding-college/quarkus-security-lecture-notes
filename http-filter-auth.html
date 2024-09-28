@@ -1,13 +1,12 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.20">
-<meta name="author" content="firstname lastname">
 <link rel="icon" type="image/png" href="themes/favicon.png">
-<title>Some Slide</title>
+<title>Security with http-filter</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -434,7 +433,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 #footer-text{color:rgba(0,0,0,.6);font-size:.9em}}
 @media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
 </style>
-<link rel="stylesheet" href="./fonts/fontawesome/css/all.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <style>
 pre.rouge table td { padding: 5px; }
 pre.rouge table pre { margin: 0; }
@@ -549,31 +548,27 @@ pre.rouge .gs {
   font-weight: bold;
 }
 </style>
+<style>
+    pre.rouge .hll {
+        background-color: #ffc;
+        display: block;
+    }
+    pre.rouge .hll * {
+        background-color: initial;
+    }
+</style>
 </head>
 <body class="article toc2 toc-left">
 <div id="header">
-<h1>Some Slide</h1>
-<div class="details">
-<span id="author" class="author">firstname lastname</span><br>
-<span id="email" class="email"><a href="mailto:x.y@htl.at">x.y@htl.at</a></span><br>
-<span id="revnumber">version 1.0,</span>
-<span id="revdate">2024-09-28</span>
-<br><span id="revremark">SLIDEDEMO @ HTL Leonding</span>
-</div>
+<h1>Security with http-filter</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_slide_w_image">1. Slide w/ image</a></li>
-<li><a href="#_slide_w_text_and_background_image">2. Slide w/ text and background image</a></li>
-<li><a href="#">3. !</a></li>
-<li><a href="#_2">4. !</a></li>
-<li><a href="#_3">5. !</a></li>
-<li><a href="#_4">6. !</a></li>
-<li><a href="#_5">7. !</a></li>
-<li><a href="#_unmatched">8. Unmatched</a></li>
-<li><a href="#_unmatched_2">9. Unmatched</a></li>
-<li><a href="#_duration">10. Duration</a></li>
-<li><a href="#_duration_2">11. Duration</a></li>
+<li><a href="#_create_project">1. Create Project</a></li>
+<li><a href="#_overview_authentication_and_authorization">2. Overview - Authentication and Authorization</a></li>
+<li><a href="#_first_usage_of_a_containerrequestfilter">3. First Usage of a ContainerRequestFilter</a></li>
+<li><a href="#_add_basic_auth_to_containerrequestfilter">4. Add Basic Auth to ContainerRequestFilter</a></li>
+<li><a href="#_sources">5. Sources</a></li>
 </ul>
 </div>
 </div>
@@ -581,177 +576,205 @@ pre.rouge .gs {
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>Testing filter by changing documentation file</p>
+<p><span class="icon"><a class="image" href="https://raw.githubusercontent.com/htl-leonding-college/quarkus-security-lecture-notes/master/asciidocs/http-filter-auth.adoc"><i class="fa fa-file-text-o"></i></a></span> ‏ ‏ ‎
+<span class="icon"><a class="image" href="https://github.com/htl-leonding-college/quarkus-security-lecture-notes"><i class="fa fa-github-square"></i></a></span> ‏ ‏ ‎
+<span class="icon"><a class="image" href="https://htl-leonding.github.io/"><i class="fa fa-home"></i></a></span></p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_slide_w_image"><a class="anchor" href="#_slide_w_image"></a>1. Slide w/ image</h2>
+<h2 id="_create_project"><a class="anchor" href="#_create_project"></a>1. Create Project</h2>
 <div class="sectionbody">
-<div class="imageblock stretch">
+<div class="listingblock">
 <div class="content">
-<img src="images/img.png" alt="img">
+<pre class="rouge highlight"><code data-lang="shell">quarkus create app at.htl:http-filter-auth <span class="se">\</span>
+        <span class="nt">--extension</span> quarkus-resteasy <span class="se">\</span>
+                   ,quarkus-resteasy-jackson</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>result:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>Looking for the newly published extensions in registry.quarkus.io
+-----------
+selected extensions:
+- io.quarkus:quarkus-resteasy
+- io.quarkus:quarkus-resteasy-jackson
+
+
+applying codestarts...
+📚 java
+🔨 maven
+📦 quarkus
+📝 config-properties
+🔧 tooling-dockerfiles
+🔧 tooling-maven-wrapper
+🚀 resteasy-codestart
+
+-----------
+Looking for the newly published extensions in registry.quarkus.io
+-----------
+selected extensions:
+- io.quarkus:quarkus-resteasy
+- io.quarkus:quarkus-resteasy-jackson
+
+
+applying codestarts...
+📚 java
+🔨 maven
+📦 quarkus
+📝 config-properties
+🔧 tooling-dockerfiles
+🔧 tooling-maven-wrapper
+🚀 resteasy-codestart
+
+-----------
+[SUCCESS] ✅  quarkus project has been successfully generated in:
+--&gt; /Users/stuetz/SynologyDrive/htl/skripten/themen/jakartaee-microprofile/quarkus/50-quarkus-security/quarkus-security-lecture-notes/labs/auth
+-----------
+Navigate into this directory and get started: quarkus dev</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">run project</div>
+<div class="content">
+<pre>quarkus dev --clean</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">access endpoint with curl</div>
+<div class="content">
+<pre>❯ curl http://localhost:8080/hello
+Hello RESTEasy%</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">access endpoint with <a href="https://httpie.io/docs/cli/usage" target="_blank" rel="noopener">httpie</a></div>
+<div class="content">
+<pre>❯ http localhost:8080/hello
+HTTP/1.1 200 OK
+Content-Type: text/plain;charset=UTF-8
+content-length: 14
+
+Hello RESTEasy</pre>
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/first-run.png" alt="first run">
+</div>
+<div class="title">Figure 1. access endpoint with the rest-client of the IDE</div>
 </div>
 </div>
 </div>
-</div>
-<div class="sect1 lightbg">
-<h2 id="_slide_w_text_and_background_image"><a class="anchor" href="#_slide_w_text_and_background_image"></a>2. Slide w/ text and background image</h2>
+<div class="sect1">
+<h2 id="_overview_authentication_and_authorization"><a class="anchor" href="#_overview_authentication_and_authorization"></a>2. Overview - Authentication and Authorization</h2>
 <div class="sectionbody">
 <div class="imageblock">
 <div class="content">
-<img src="images/img.png" alt="background">
+<img src="images/authentication-and-authorization.png" alt="authentication and authorization">
 </div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_first_usage_of_a_containerrequestfilter"><a class="anchor" href="#_first_usage_of_a_containerrequestfilter"></a>3. First Usage of a ContainerRequestFilter</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java"><span class="kn">package</span> <span class="nn">at.htl.auth</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">io.quarkus.logging.Log</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">jakarta.annotation.Priority</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">jakarta.ws.rs.Priorities</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">jakarta.ws.rs.container.ContainerRequestContext</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">jakarta.ws.rs.container.ContainerRequestFilter</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">jakarta.ws.rs.ext.Provider</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.io.IOException</span><span class="o">;</span>
+
+<span class="nd">@Provider</span>
+<span class="nd">@Priority</span><span class="o">(</span><span class="nc">Priorities</span><span class="o">.</span><span class="na">AUTHENTICATION</span><span class="o">)</span> <i class="conum" data-value="1"></i><b>(1)</b>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">AuthenticationFilter</span> <span class="kd">implements</span> <span class="nc">ContainerRequestFilter</span> <span class="o">{</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">filter</span><span class="o">(</span><span class="nc">ContainerRequestContext</span> <span class="n">ctx</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+        <span class="nc">Log</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">"Container Request Filter for authentication - Wer bin ich?"</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Die Priority legt die Aufrufreihenfolge der Filter fest. Die Authentifizierung muss als Erstes erfolgen.</td>
+</tr>
+</table>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>Topic 1</p>
-</li>
-<li>
-<p>Topic 2</p>
-</li>
-<li>
-<p>Topic 3</p>
+<p>Führt man neuerlich einen Request aus, so wird in der Console des Servers der Logeintrag angezeigt</p>
+<div class="listingblock">
+<div class="content">
+<pre>2024-09-28 17:51:18,515 INFO  [at.htl.aut.AuthenticationFilter] (executor-thread-1) Container Request Filter for authentication - Wer bin ich?</pre>
+</div>
+</div>
 </li>
 </ul>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id=""><a class="anchor" href="#"></a>3. !</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Matched element will be animated automatically!</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_2"><a class="anchor" href="#_2"></a>4. !</h2>
-<div class="sectionbody">
-<div class="paragraph highlight">
-<p>Matched element will be animated automatically!</p>
-</div>
-<div class="paragraph">
-<p>And move to the right position!</p>
-</div>
-<div class="paragraph">
-<p>⬆️<br>
-⬆️<br>
-⬆️</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_3"><a class="anchor" href="#_3"></a>5. !</h2>
+<h2 id="_add_basic_auth_to_containerrequestfilter"><a class="anchor" href="#_add_basic_auth_to_containerrequestfilter"></a>4. Add Basic Auth to ContainerRequestFilter</h2>
 <div class="sectionbody">
 <div class="listingblock">
+<div class="title">Zunächst erstellen base64-codierte Credentials</div>
 <div class="content">
-<pre class="rouge highlight"><code data-lang="js"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
-2
-3
-</pre></td><td class="code"><pre><span class="kd">let</span> <span class="nx">planets</span> <span class="o">=</span> <span class="p">[</span>
-  <span class="p">{</span> <span class="na">name</span><span class="p">:</span> <span class="dl">'</span><span class="s1">mars</span><span class="dl">'</span><span class="p">,</span> <span class="na">diameter</span><span class="p">:</span> <span class="mi">6779</span> <span class="p">},</span>
-<span class="p">]</span>
-</pre></td></tr></tbody></table></code></pre>
+<pre>❯ echo -n "john:doe" | base64
+am9objpkb2U=</pre>
 </div>
 </div>
+<div class="ulist">
+<ul>
+<li>
+<p>When you do <code>echo "password" | md5</code>, echo adds a newline to the string to be hashed, i.e. password\n. When you add the -n switch, it doesn&#8217;t, so only the characters password are hashed. (<a href="https://stackoverflow.com/a/30762067" target="_blank" rel="noopener">source</a>)</p>
+</li>
+</ul>
 </div>
-</div>
-<div class="sect1">
-<h2 id="_4"><a class="anchor" href="#_4"></a>6. !</h2>
-<div class="sectionbody">
 <div class="listingblock">
+<div class="title">Nun setzen wir einen GET-Request ab</div>
 <div class="content">
-<pre class="rouge highlight"><code data-lang="js"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
-2
-3
-4
-5
-</pre></td><td class="code"><pre><span class="kd">let</span> <span class="nx">planets</span> <span class="o">=</span> <span class="p">[</span>
-  <span class="p">{</span> <span class="na">name</span><span class="p">:</span> <span class="dl">'</span><span class="s1">mars</span><span class="dl">'</span><span class="p">,</span> <span class="na">diameter</span><span class="p">:</span> <span class="mi">6779</span> <span class="p">},</span>
-  <span class="p">{</span> <span class="na">name</span><span class="p">:</span> <span class="dl">'</span><span class="s1">earth</span><span class="dl">'</span><span class="p">,</span> <span class="na">diameter</span><span class="p">:</span> <span class="mi">12742</span> <span class="p">},</span>
-  <span class="p">{</span> <span class="na">name</span><span class="p">:</span> <span class="dl">'</span><span class="s1">jupiter</span><span class="dl">'</span><span class="p">,</span> <span class="na">diameter</span><span class="p">:</span> <span class="mi">139820</span> <span class="p">}</span>
-<span class="p">]</span>
-</pre></td></tr></tbody></table></code></pre>
+<pre class="rouge highlight"><code data-lang="httprequest">GET http://localhost:8080/hello
+Authorization: Basic am9objpkb2U=</code></pre>
 </div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_5"><a class="anchor" href="#_5"></a>7. !</h2>
+<h2 id="_sources"><a class="anchor" href="#_sources"></a>5. Sources</h2>
 <div class="sectionbody">
-<div class="listingblock">
-<div class="content">
-<pre class="rouge highlight"><code data-lang="js"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10
-11
-</pre></td><td class="code"><pre><span class="kd">let</span> <span class="nx">circumferenceReducer</span> <span class="o">=</span> <span class="p">(</span> <span class="nx">c</span><span class="p">,</span> <span class="nx">planet</span> <span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
-  <span class="k">return</span> <span class="nx">c</span> <span class="o">+</span> <span class="nx">planet</span><span class="p">.</span><span class="nx">diameter</span> <span class="o">*</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">PI</span><span class="p">;</span>
-<span class="p">}</span>
-
-<span class="kd">let</span> <span class="nx">planets</span> <span class="o">=</span> <span class="p">[</span>
-  <span class="p">{</span> <span class="na">name</span><span class="p">:</span> <span class="dl">'</span><span class="s1">mars</span><span class="dl">'</span><span class="p">,</span> <span class="na">diameter</span><span class="p">:</span> <span class="mi">6779</span> <span class="p">},</span>
-  <span class="p">{</span> <span class="na">name</span><span class="p">:</span> <span class="dl">'</span><span class="s1">earth</span><span class="dl">'</span><span class="p">,</span> <span class="na">diameter</span><span class="p">:</span> <span class="mi">12742</span> <span class="p">},</span>
-  <span class="p">{</span> <span class="na">name</span><span class="p">:</span> <span class="dl">'</span><span class="s1">jupiter</span><span class="dl">'</span><span class="p">,</span> <span class="na">diameter</span><span class="p">:</span> <span class="mi">139820</span> <span class="p">}</span>
-<span class="p">]</span>
-
-<span class="kd">let</span> <span class="nx">c</span> <span class="o">=</span> <span class="nx">planets</span><span class="p">.</span><span class="nf">reduce</span><span class="p">(</span> <span class="nx">circumferenceReducer</span><span class="p">,</span> <span class="mi">0</span> <span class="p">)</span>
-</pre></td></tr></tbody></table></code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_unmatched"><a class="anchor" href="#_unmatched"></a>8. Unmatched</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Introduction. (matched)</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_unmatched_2"><a class="anchor" href="#_unmatched_2"></a>9. Unmatched</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Introduction. (matched)</p>
-</div>
-<div class="paragraph">
-<p>This will be shown instantly ⚡ (unmatched)</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_duration"><a class="anchor" href="#_duration"></a>10. Duration</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>This animation&#8230;&#8203;</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_duration_2"><a class="anchor" href="#_duration_2"></a>11. Duration</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>This animation&#8230;&#8203;</p>
-</div>
-<div class="paragraph">
-<p>&#8230;&#8203;will take 5 seconds! ⌚</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://solocoding.dev/blog/eng_quarkus_intercept_requests" target="_blank" rel="noopener">solocoding - Intercepting HTTP Requests in Quarkus, 21/07</a></p>
+</li>
+<li>
+<p><a href="https://blog.payara.fish/intercepting-rest-requests-with-jakarta-rest-request-filters" target="_blank" rel="noopener">Intercepting REST Requests With Jakarta REST Request Filters</a></p>
+</li>
+<li>
+<p><a href="https://medium.com/@sachinisiriwardene/jax-rs-filters-a-convenient-way-to-access-incoming-and-outgoing-requests-cd7a20b55302" target="_blank" rel="noopener">JAX RS Filters : A convenient way to access incoming and outgoing requests (2019/09)</a></p>
+</li>
+</ul>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0<br>
 Last updated 2024-09-28 16:30:44 UTC
 </div>
 </div>
