@@ -1,0 +1,12 @@
+GET http://localhost:8080/hello
+Content-Type: */*
+
+###
+
+# echo -n "john:doe" | base64
+GET http://localhost:8080/hello
+Authorization: Basic am9objpkb2U=
+
+###
+
+
