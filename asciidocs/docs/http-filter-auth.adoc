@@ -1,0 +1,163 @@
+= Security with http-filter
+ifndef::sourcedir-code[:sourcedir-code: ../labs/openid-connect-policies/src/main/java/at/htl]
+ifndef::sourcedir-test[:sourcedir-test: ../labs/openid-connect-policies/src/test/java/at/htl]
+ifndef::imagesdir[:imagesdir: images]
+
+
+icon:file-text-o[link=https://raw.githubusercontent.com/htl-leonding-college/quarkus-security-lecture-notes/master/asciidocs/{docname}.adoc] ‏ ‏ ‎
+icon:github-square[link=https://github.com/htl-leonding-college/quarkus-security-lecture-notes] ‏ ‏ ‎
+icon:home[link=https://htl-leonding.github.io/]
+
+== Create Project
+
+[source,shell]
+----
+quarkus create app at.htl:http-filter-auth \
+        --extension quarkus-resteasy \
+                   ,quarkus-resteasy-jackson
+----
+
+result:
+----
+Looking for the newly published extensions in registry.quarkus.io
+-----------
+selected extensions:
+- io.quarkus:quarkus-resteasy
+- io.quarkus:quarkus-resteasy-jackson
+
+
+applying codestarts...
+📚 java
+🔨 maven
+📦 quarkus
+📝 config-properties
+🔧 tooling-dockerfiles
+🔧 tooling-maven-wrapper
+🚀 resteasy-codestart
+
+-----------
+Looking for the newly published extensions in registry.quarkus.io
+-----------
+selected extensions:
+- io.quarkus:quarkus-resteasy
+- io.quarkus:quarkus-resteasy-jackson
+
+
+applying codestarts...
+📚 java
+🔨 maven
+📦 quarkus
+📝 config-properties
+🔧 tooling-dockerfiles
+🔧 tooling-maven-wrapper
+🚀 resteasy-codestart
+
+-----------
+[SUCCESS] ✅  quarkus project has been successfully generated in:
+--> /Users/stuetz/SynologyDrive/htl/skripten/themen/jakartaee-microprofile/quarkus/50-quarkus-security/quarkus-security-lecture-notes/labs/auth
+-----------
+Navigate into this directory and get started: quarkus dev
+----
+
+.run project
+----
+quarkus dev --clean
+----
+
+.access endpoint with curl
+----
+❯ curl http://localhost:8080/hello
+Hello RESTEasy%
+----
+
+.access endpoint with https://httpie.io/docs/cli/usage[httpie^]
+----
+❯ http localhost:8080/hello
+HTTP/1.1 200 OK
+Content-Type: text/plain;charset=UTF-8
+content-length: 14
+
+Hello RESTEasy
+----
+
+.access endpoint with the rest-client of the IDE
+image::first-run.png[]
+
+== Overview - Authentication and Authorization
+
+image::authentication-and-authorization.png[]
+
+
+
+
+== First Usage of a ContainerRequestFilter
+
+[source,java]
+----
+package at.htl.auth;
+
+import io.quarkus.logging.Log;
+import jakarta.annotation.Priority;
+import jakarta.ws.rs.Priorities;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.container.ContainerRequestFilter;
+import jakarta.ws.rs.ext.Provider;
+
+import java.io.IOException;
+
+@Provider
+@Priority(Priorities.AUTHENTICATION) // <.>
+public class AuthenticationFilter implements ContainerRequestFilter {
+
+    @Override
+    public void filter(ContainerRequestContext ctx) throws IOException {
+        Log.info("Container Request Filter for authentication - Wer bin ich?");
+    }
+}
+----
+
+<.> Die Priority legt die Aufrufreihenfolge der Filter fest. Die Authentifizierung muss als Erstes erfolgen.
+
+//--
+
+* Führt man neuerlich einen Request aus, so wird in der Console des Servers der Logeintrag angezeigt
++
+----
+2024-09-28 17:51:18,515 INFO  [at.htl.aut.AuthenticationFilter] (executor-thread-1) Container Request Filter for authentication - Wer bin ich?
+----
+
+== Add Basic Auth to ContainerRequestFilter
+
+.Zunächst erstellen base64-codierte Credentials
+----
+❯ echo -n "john:doe" | base64
+am9objpkb2U=
+----
+
+* When you do `echo "password" | md5`, echo adds a newline to the string to be hashed, i.e. password\n. When you add the -n switch, it doesn't, so only the characters password are hashed. (https://stackoverflow.com/a/30762067[source^])
+
+.Nun setzen wir einen GET-Request ab
+[source,httprequest]
+----
+GET http://localhost:8080/hello
+Authorization: Basic am9objpkb2U=
+----
+
+
+
+
+
+
+
+== Sources
+
+* https://solocoding.dev/blog/eng_quarkus_intercept_requests[solocoding - Intercepting HTTP Requests in Quarkus, 21/07^]
+
+* https://blog.payara.fish/intercepting-rest-requests-with-jakarta-rest-request-filters[Intercepting REST Requests With Jakarta REST Request Filters^]
+
+* https://medium.com/@sachinisiriwardene/jax-rs-filters-a-convenient-way-to-access-incoming-and-outgoing-requests-cd7a20b55302[JAX RS Filters : A convenient way to access incoming and outgoing requests (2019/09)^]
+
+
+
+
+

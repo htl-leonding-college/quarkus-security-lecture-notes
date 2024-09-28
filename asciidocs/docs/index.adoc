@@ -33,6 +33,9 @@ IMPORTANT: Login credentials authenticate a user when logging into an online acc
 * Grundsätzlich muss man sich zunächst authentifizieren -> *Wer bin ich?*
 * Anschließend ist man autorisiert, um auf Ressourcen zuzugreifen -> *Was darf ich?*
 
+.Authentifizierung und Autorisierung mit ContainerRequestFilter
+<<http-filter-auth.adoc#, "open doc">>
+
 === Authentifizierungsmechanismen
 
 IMPORTANT: Quarkus kennt den Begriff der https://quarkus.io/guides/security-built-in-authentication-support-concept#proactive-authentication[proaktiven Authentifizierung] wobei im Request vorhandene Credentials immer abgeprüft werden und falls diese nicht gültig sind, wird auch der Zugriff zu public-Pages verwehrt.
@@ -91,9 +94,14 @@ IMPORTANT: Quarkus kennt den Begriff der https://quarkus.io/guides/security-buil
 * Sources
 ** https://quarkus.io/guides/security-overview-concept#openid-connect-authentication[OpenID Connect authentication concept]
 ** https://quarkus.io/guides/security-openid-connect[Using OpenID Connect (OIDC) to Protect Service Applications using Bearer Token Authorization - Tutorial^]
+** https://developers.redhat.com/articles/2022/04/21/add-security-quarkus-application-using-red-hats-sso[Add security to a Quarkus application using Red Hat's SSO^]
 ** https://quarkus.io/guides/security-openid-connect-web-authentication[OpenID Connect (OIDC) authorization code flow mechanism - Tutorial^]
 ** https://quarkus.io/guides/security-keycloak-authorization[Using OpenID Connect (OIDC) and Keycloak to centralize authorization - Tutorial^]
 ** https://quarkus.io/guides/security-keycloak-admin-client[Configuring Keycloak programmatically - Tutorial^]
+
+++++
+<iframe width="560" height="315" src="https://www.youtube.com/embed/c0NR8ftDNs0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+++++
 
 
 ==== JWT authentication
