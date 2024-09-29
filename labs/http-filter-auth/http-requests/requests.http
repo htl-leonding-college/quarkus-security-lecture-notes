@@ -1,12 +1,13 @@
+### 1 GET /hello ohne auth
+
 GET http://localhost:8080/hello
 Content-Type: */*
 
-###
+### 2 GET /hello mit auth
 
 # echo -n "john:doe" | base64
 GET http://localhost:8080/hello
 Authorization: Basic am9objpkb2U=
 
 ###
-
 
