@@ -1,6 +1,6 @@
 = Quarkus Security Concepts
 Thomas Stütz
-2.0.0, 2023-04-07: Lecture Notes for Courses at HTL Leonding
+2.0.0, {docdate}: Lecture Notes for Courses at HTL Leonding
 :toc: preamble
 :toclevels: 5
 :sectnums:    // Nummerierung der Überschriften / section numbering
