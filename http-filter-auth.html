@@ -567,7 +567,11 @@ pre.rouge .gs {
 <li><a href="#_create_project">1. Create Project</a></li>
 <li><a href="#_overview_authentication_and_authorization">2. Overview - Authentication and Authorization</a></li>
 <li><a href="#_first_usage_of_a_containerrequestfilter">3. First Usage of a ContainerRequestFilter</a></li>
-<li><a href="#_add_basic_auth_to_containerrequestfilter">4. Add Basic Auth to ContainerRequestFilter</a></li>
+<li><a href="#_add_basic_auth_to_containerrequestfilter">4. Add Basic Auth to ContainerRequestFilter</a>
+<ul class="sectlevel2">
+<li><a href="#_decodieren_der_credentials">4.1. Decodieren der Credentials</a></li>
+</ul>
+</li>
 <li><a href="#_sources">5. Sources</a></li>
 </ul>
 </div>
@@ -741,7 +745,7 @@ am9objpkb2U=</pre>
 <div class="ulist">
 <ul>
 <li>
-<p>When you do <code>echo "password" | md5</code>, echo adds a newline to the string to be hashed, i.e. password\n. When you add the -n switch, it doesn&#8217;t, so only the characters password are hashed. (<a href="https://stackoverflow.com/a/30762067" target="_blank" rel="noopener">source</a>)</p>
+<p>When you do <code>echo "password" | md5</code>, echo adds a newline to the string to be hashed, i.e. <code>password\n</code>. When you add the -n switch, it doesn&#8217;t, so only the characters <code>password</code> are hashed. (<a href="https://stackoverflow.com/a/30762067" target="_blank" rel="noopener">source</a>)</p>
 </li>
 </ul>
 </div>
@@ -750,6 +754,169 @@ am9objpkb2U=</pre>
 <div class="content">
 <pre class="rouge highlight"><code data-lang="httprequest">GET http://localhost:8080/hello
 Authorization: Basic am9objpkb2U=</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">gesendeter GET-Request (Tools | HTTP Client | 'Show HTTP Requests History')</div>
+<div class="content">
+<pre>GET http://localhost:8080/hello
+Authorization: Basic am9objpkb2U=
+User-Agent: IntelliJ HTTP Client/IntelliJ IDEA 2024.3 EAP
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+content-length: 0</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Im Server-Log gibt es nun folgende Einträge</div>
+<div class="content">
+<pre>2024-09-28 18:16:37,704 INFO  [at.htl.aut.AuthenticationFilter] (executor-thread-1) Container Request Filter for authentication - Wer bin ich?
+2024-09-28 18:16:37,705 INFO  [at.htl.aut.AuthenticationFilter] (executor-thread-1) Authorization=Basic am9objpkb2U=</pre>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_decodieren_der_credentials"><a class="anchor" href="#_decodieren_der_credentials"></a>4.1. Decodieren der Credentials</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java"><span class="kn">package</span> <span class="nn">at.htl.auth</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">io.quarkus.logging.Log</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">jakarta.enterprise.context.ApplicationScoped</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.Base64</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.regex.Pattern</span><span class="o">;</span>
+
+<span class="nd">@ApplicationScoped</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Base64AuthenticationParser</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="nc">Pattern</span> <span class="no">BASIC_AUTH_PATTERN</span> <span class="o">=</span> <span class="nc">Pattern</span><span class="o">.</span><span class="na">compile</span><span class="o">(</span><span class="s">"Basic (.*)"</span><span class="o">);</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="n">record</span> <span class="nf">Credentials</span><span class="o">(</span><span class="nc">String</span> <span class="n">username</span><span class="o">,</span> <span class="nc">String</span> <span class="n">password</span><span class="o">)</span> <span class="o">{}</span>
+
+    <span class="kd">public</span> <span class="nc">Credentials</span> <span class="nf">parseAuthenticationHeader</span><span class="o">(</span><span class="nc">String</span> <span class="n">header</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">header</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kt">var</span> <span class="n">matcher</span> <span class="o">=</span> <span class="no">BASIC_AUTH_PATTERN</span><span class="o">.</span><span class="na">matcher</span><span class="o">(</span><span class="n">header</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(!</span><span class="n">matcher</span><span class="o">.</span><span class="na">find</span><span class="o">())</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kt">var</span> <span class="n">encodedCredentials</span> <span class="o">=</span> <span class="n">matcher</span><span class="o">.</span><span class="na">group</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+        <span class="kt">var</span> <span class="n">decodedCredentials</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">String</span><span class="o">(</span><span class="nc">Base64</span><span class="o">.</span><span class="na">getDecoder</span><span class="o">().</span><span class="na">decode</span><span class="o">(</span><span class="n">encodedCredentials</span><span class="o">));</span>
+        <span class="nc">Log</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="n">decodedCredentials</span><span class="o">);</span>
+
+        <span class="kt">var</span> <span class="n">usernameAndPassword</span> <span class="o">=</span> <span class="n">decodedCredentials</span><span class="o">.</span><span class="na">split</span><span class="o">(</span><span class="s">":"</span><span class="o">);</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="nf">Credentials</span><span class="o">(</span><span class="n">usernameAndPassword</span><span class="o">[</span><span class="mi">0</span><span class="o">],</span> <span class="n">usernameAndPassword</span><span class="o">[</span><span class="mi">1</span><span class="o">]);</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java"><span class="kn">package</span> <span class="nn">at.htl.auth</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">io.quarkus.logging.Log</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">jakarta.annotation.Priority</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">jakarta.annotation.security.PermitAll</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">jakarta.inject.Inject</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">jakarta.ws.rs.Priorities</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">jakarta.ws.rs.container.ContainerRequestContext</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">jakarta.ws.rs.container.ContainerRequestFilter</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">jakarta.ws.rs.container.ResourceInfo</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">jakarta.ws.rs.core.Context</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">jakarta.ws.rs.core.Response</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">jakarta.ws.rs.ext.Provider</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.io.IOException</span><span class="o">;</span>
+
+<span class="nd">@Provider</span>
+<span class="nd">@Priority</span><span class="o">(</span><span class="nc">Priorities</span><span class="o">.</span><span class="na">AUTHENTICATION</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">AuthenticationFilter</span> <span class="kd">implements</span> <span class="nc">ContainerRequestFilter</span> <span class="o">{</span>
+
+    <span class="nd">@Inject</span>
+    <span class="nc">Base64AuthenticationParser</span> <span class="n">base64AuthenticationParser</span><span class="o">;</span>
+
+    <span class="nd">@Context</span>
+    <span class="nc">ResourceInfo</span> <span class="n">resourceInfo</span><span class="o">;</span>
+
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="nc">String</span> <span class="no">CREDENTIALS</span> <span class="o">=</span> <span class="nc">AuthenticationFilter</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getSimpleName</span><span class="o">()</span> <span class="o">+</span> <span class="s">"_CREDENTIALS"</span><span class="o">;</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">filter</span><span class="o">(</span><span class="nc">ContainerRequestContext</span> <span class="n">ctx</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+
+        <span class="kt">var</span> <span class="n">annotation</span> <span class="o">=</span> <span class="n">resourceInfo</span>
+                <span class="o">.</span><span class="na">getResourceClass</span><span class="o">()</span>
+                <span class="o">.</span><span class="na">getAnnotation</span><span class="o">(</span><span class="nc">PermitAll</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+        <span class="nc">Log</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">"Container Request Filter for authentication - Wer bin ich?"</span><span class="o">);</span>
+        <span class="nc">Log</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">"Authorization="</span> <span class="o">+</span> <span class="n">ctx</span><span class="o">.</span><span class="na">getHeaderString</span><span class="o">(</span><span class="s">"Authorization"</span><span class="o">));</span>
+
+        <span class="kt">var</span> <span class="n">credentials</span> <span class="o">=</span> <span class="n">base64AuthenticationParser</span>
+                <span class="o">.</span><span class="na">parseAuthenticationHeader</span><span class="o">(</span>
+                        <span class="n">ctx</span><span class="o">.</span><span class="na">getHeaderString</span><span class="o">(</span><span class="s">"Authorization"</span><span class="o">)</span>
+                <span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">credentials</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+
+            <span class="nc">Log</span><span class="o">.</span><span class="na">infof</span><span class="o">(</span><span class="s">"credentials.username=%s, credentials.password=%s"</span>
+                    <span class="o">,</span> <span class="n">credentials</span><span class="o">.</span><span class="na">username</span><span class="o">()</span>
+                    <span class="o">,</span> <span class="n">credentials</span><span class="o">.</span><span class="na">password</span><span class="o">()</span>
+            <span class="o">);</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="na">setProperty</span><span class="o">(</span><span class="no">CREDENTIALS</span><span class="o">,</span> <span class="n">credentials</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="na">abortWith</span><span class="o">(</span><span class="nc">Response</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="nc">Response</span><span class="o">.</span><span class="na">Status</span><span class="o">.</span><span class="na">UNAUTHORIZED</span><span class="o">).</span><span class="na">build</span><span class="o">());</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">GET-Request mit Credentials</div>
+<div class="content">
+<pre>GET http://localhost:8080/hello
+Authorization: Basic am9objpkb2U=</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Response</div>
+<div class="content">
+<pre>HTTP/1.1 200 OK
+Content-Type: text/plain;charset=UTF-8
+content-length: 14
+
+Hello RESTEasy</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Im Server-Log gibt es nun folgende Einträge</div>
+<div class="content">
+<pre>2024-09-28 20:40:29,403 INFO  [at.htl.aut.AuthenticationFilter] (executor-thread-1) Container Request Filter for authentication - Wer bin ich?
+2024-09-28 20:40:29,403 INFO  [at.htl.aut.AuthenticationFilter] (executor-thread-1) Authorization=Basic am9objpkb2U=
+2024-09-28 20:40:29,404 INFO  [at.htl.aut.Base64AuthenticationParser] (executor-thread-1) john:doe
+2024-09-28 20:40:29,405 INFO  [at.htl.aut.AuthenticationFilter] (executor-thread-1) credentials.username=john, credentials.password=doe</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">GET-Request ohne Credentials</div>
+<div class="content">
+<pre>GET http://localhost:8080/hello</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Response</div>
+<div class="content">
+<pre>HTTP/1.1 401 Unauthorized
+content-length: 0
+
+&lt;Response body is empty&gt;</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Im Server-Log gibt es nun folgende Einträge</div>
+<div class="content">
+<pre>2024-09-29 06:16:03,656 INFO  [at.htl.aut.AuthenticationFilter] (executor-thread-1) Container Request Filter for authentication - Wer bin ich?
+2024-09-29 06:16:03,659 INFO  [at.htl.aut.AuthenticationFilter] (executor-thread-1) Authorization=null</pre>
+</div>
 </div>
 </div>
 </div>
@@ -775,7 +942,7 @@ Authorization: Basic am9objpkb2U=</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-09-28 16:30:44 UTC
+Last updated 2024-09-29 04:52:48 UTC
 </div>
 </div>
 </body>
