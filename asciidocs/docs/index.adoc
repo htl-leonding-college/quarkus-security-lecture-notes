@@ -17,6 +17,8 @@ icon:file-text-o[link=https://raw.githubusercontent.com/htl-leonding-college/qua
 icon:github-square[link=https://github.com/htl-leonding-college/quarkus-security-lecture-notes] ‏ ‏ ‎
 icon:home[link=https://htl-leonding-college.github.io/quarkus-security-lecture-notes/]
 endif::backend-html5[]
+:source-highlighter: rouge
+:docinfo: shared
 
 == Guides on Quarkus Portal
 

@@ -257,6 +257,7 @@ public class AuthenticationFilter implements ContainerRequestFilter {
 ----
 
 .GET-Request mit Credentials
+[source,httprequest,highlight=2]
 ----
 GET http://localhost:8080/hello
 Authorization: Basic am9objpkb2U=
