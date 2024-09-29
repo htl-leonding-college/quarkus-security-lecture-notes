@@ -134,7 +134,7 @@ public class AuthenticationFilter implements ContainerRequestFilter {
 am9objpkb2U=
 ----
 
-* When you do `echo "password" | md5`, echo adds a newline to the string to be hashed, i.e. password\n. When you add the -n switch, it doesn't, so only the characters password are hashed. (https://stackoverflow.com/a/30762067[source^])
+* When you do `echo "password" | md5`, echo adds a newline to the string to be hashed, i.e. `password\n`. When you add the -n switch, it doesn't, so only the characters `password` are hashed. (https://stackoverflow.com/a/30762067[source^])
 
 .Nun setzen wir einen GET-Request ab
 [source,httprequest]
@@ -142,6 +142,165 @@ am9objpkb2U=
 GET http://localhost:8080/hello
 Authorization: Basic am9objpkb2U=
 ----
+
+.Im Server-Log gibt es nun folgende Einträge
+----
+2024-09-28 18:16:37,704 INFO  [at.htl.aut.AuthenticationFilter] (executor-thread-1) Container Request Filter for authentication - Wer bin ich?
+2024-09-28 18:16:37,705 INFO  [at.htl.aut.AuthenticationFilter] (executor-thread-1) Authorization=Basic am9objpkb2U=
+----
+
+=== Decodieren der Credentials
+
+[source,java]
+----
+package at.htl.auth;
+
+import io.quarkus.logging.Log;
+import jakarta.enterprise.context.ApplicationScoped;
+import java.util.Base64;
+import java.util.regex.Pattern;
+
+@ApplicationScoped
+public class Base64AuthenticationParser {
+    private static final Pattern BASIC_AUTH_PATTERN = Pattern.compile("Basic (.*)");
+
+    public static record Credentials(String username, String password) {}
+
+    public Credentials parseAuthenticationHeader(String header) {
+        if (header == null) {
+            return null;
+        }
+
+        var matcher = BASIC_AUTH_PATTERN.matcher(header);
+        if (!matcher.find()) {
+            return null;
+        }
+
+        var encodedCredentials = matcher.group(1);
+        var decodedCredentials = new String(Base64.getDecoder().decode(encodedCredentials));
+        Log.info(decodedCredentials);
+
+        var usernameAndPassword = decodedCredentials.split(":");
+        return new Credentials(usernameAndPassword[0], usernameAndPassword[1]);
+    }
+}
+----
+
+[source,java]
+----
+package at.htl.auth;
+
+import io.quarkus.logging.Log;
+import jakarta.annotation.Priority;
+import jakarta.annotation.security.PermitAll;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.Priorities;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.container.ContainerRequestFilter;
+import jakarta.ws.rs.container.ResourceInfo;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.Provider;
+
+import java.io.IOException;
+
+@Provider
+@Priority(Priorities.AUTHENTICATION)
+public class AuthenticationFilter implements ContainerRequestFilter {
+
+    @Inject
+    Base64AuthenticationParser base64AuthenticationParser;
+
+    @Context
+    ResourceInfo resourceInfo;
+
+
+    public static final String CREDENTIALS = AuthenticationFilter.class.getSimpleName() + "_CREDENTIALS";
+
+    @Override
+    public void filter(ContainerRequestContext ctx) throws IOException {
+
+        var annotation = resourceInfo
+                .getResourceClass()
+                .getAnnotation(PermitAll.class);
+
+        Log.info("Container Request Filter for authentication - Wer bin ich?");
+        Log.info("Authorization=" + ctx.getHeaderString("Authorization"));
+
+        var credentials = base64AuthenticationParser
+                .parseAuthenticationHeader(
+                        ctx.getHeaderString("Authorization")
+                );
+        if (credentials != null) {
+
+            Log.infof("credentials.username=%s, credentials.password=%s"
+                    , credentials.username()
+                    , credentials.password()
+            );
+            ctx.setProperty(CREDENTIALS, credentials);
+        } else {
+            ctx.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+        }
+    }
+}
+----
+
+.GET-Request mit Credentials
+----
+GET http://localhost:8080/hello
+Authorization: Basic am9objpkb2U=
+----
+
+.Im Server-Log gibt es nun folgende Einträge
+----
+2024-09-28 20:40:29,403 INFO  [at.htl.aut.AuthenticationFilter] (executor-thread-1) Container Request Filter for authentication - Wer bin ich?
+2024-09-28 20:40:29,403 INFO  [at.htl.aut.AuthenticationFilter] (executor-thread-1) Authorization=Basic am9objpkb2U=
+2024-09-28 20:40:29,404 INFO  [at.htl.aut.Base64AuthenticationParser] (executor-thread-1) john:doe
+2024-09-28 20:40:29,405 INFO  [at.htl.aut.AuthenticationFilter] (executor-thread-1) credentials.username=john, credentials.password=doe
+----
+
+.GET-Request ohne Credentials
+----
+GET http://localhost:8080/hello
+----
+
+.Im Server-Log gibt es nun folgende Einträge
+----
+2024-09-29 06:16:03,656 INFO  [at.htl.aut.AuthenticationFilter] (executor-thread-1) Container Request Filter for authentication - Wer bin ich?
+2024-09-29 06:16:03,659 INFO  [at.htl.aut.AuthenticationFilter] (executor-thread-1) Authorization=null
+----
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
